@@ -46,7 +46,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = async (_req: Request, res: Response) => {
 	try {
-		res.cookie("refreshToken", {
+		res.clearCookie("refreshToken", {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
 			sameSite: "lax",
@@ -59,7 +59,7 @@ export const logout = async (_req: Request, res: Response) => {
 
 export const refreshToken = async (req: Request, res: Response) => {
 	try {
-		const token = req.body.refreshToken || req.cookies.refreshToken;
+		const token = req.body?.refreshToken || req.cookies.refreshToken;
 
 		if (!token) {
 			return res.status(401).json({ error: "Refresh token missing" });
