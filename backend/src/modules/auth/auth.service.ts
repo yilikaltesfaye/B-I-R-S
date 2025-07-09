@@ -1,6 +1,10 @@
-import prisma from "../prisma/client";
-import { comparePasswords, hashPassword } from "../utils/hash";
-import { generateAccessToken, generateRefreshToken } from "../utils/token";
+import prisma from "../../prisma/client";
+import { comparePasswords, hashPassword } from "../../utils/hash";
+import {
+	generateAccessToken,
+	generateRefreshToken,
+	verifyRefreshToken,
+} from "../../utils/token";
 
 export const signup = async (
 	name: string,
@@ -50,4 +54,19 @@ export const login = async (phone: string, password: string) => {
 	const refreshToken = generateRefreshToken(user.id);
 
 	return { accessToken, refreshToken };
+};
+export const refreshToken = (token: string) => {
+	if (!token) throw new Error("No token Provided");
+
+	try {
+		const payload = verifyRefreshToken(token);
+
+		const newAccessToken = generateAccessToken(payload.userId);
+
+		const newRefreshToken = generateRefreshToken(payload.userId);
+
+		return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+	} catch (error) {
+		throw new Error("invalid or expired token");
+	}
 };
