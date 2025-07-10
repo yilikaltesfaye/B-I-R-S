@@ -6,7 +6,7 @@ import {
 	generateResetToken,
 	verifyRefreshToken,
 } from "../../utils/token";
-// import { sendOtp, verifyOtp } from "./otp.service";
+import { sendOtp, verifyOtp } from "./otp.service";
 
 export const signup = async (
 	name: string,
@@ -35,8 +35,8 @@ export const signup = async (
 		},
 	});
 
-	const accessToken = generateAccessToken(user.id);
-	const refreshToken = generateRefreshToken(user.id);
+	const refreshToken = generateRefreshToken(user.id, user.role);
+	const accessToken = generateAccessToken(user.id, user.role, refreshToken);
 
 	return { accessToken, refreshToken };
 };
@@ -52,22 +52,42 @@ export const login = async (phone: string, password: string) => {
 	const valid = await comparePasswords(password, user.password);
 	if (!valid) throw new Error("Invalid Password");
 
-	const accessToken = generateAccessToken(user.id);
-	const refreshToken = generateRefreshToken(user.id);
+	const refreshToken = generateRefreshToken(user.id, user.role);
+	const accessToken = generateAccessToken(user.id, user.role, refreshToken);
 
 	return { accessToken, refreshToken };
 };
-export const refreshToken = (token: string) => {
+export const refreshAccessToken = (token: string) => {
 	if (!token) throw new Error("No token Provided");
 
 	try {
 		const payload = verifyRefreshToken(token);
+		console.log(payload.userRole);
+		const newAccessToken = generateAccessToken(
+			payload.userId,
+			payload.userRole,
+			token
+		);
 
-		const newAccessToken = generateAccessToken(payload.userId);
+		return { accessToken: newAccessToken };
+	} catch (error) {
+		throw new Error("invalid or expired token");
+	}
+};
+export const refreshCookieToken = async (userId: string) => {
+	if (!userId) throw new Error("No user Id and user role Provided");
 
-		const newRefreshToken = generateRefreshToken(payload.userId);
+	try {
+		const user = await prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+		});
+		if (!user) throw new Error("Invalid Phone");
 
-		return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+		const newRefreshToken = generateRefreshToken(user.id, user.role);
+
+		return { refreshToken: newRefreshToken };
 	} catch (error) {
 		throw new Error("invalid or expired token");
 	}
@@ -113,28 +133,28 @@ export const resetPassword = async (token: string, newPassword: string) => {
 	});
 };
 
-// export const requestPasswordResetOtp = async (phone: string) => {
-// 	const user = await prisma.user.findUnique({ where: { phone } });
-// 	if (!user) throw new Error("User not found");
+export const requestPasswordResetOtp = async (phone: string) => {
+	const user = await prisma.user.findUnique({ where: { phone } });
+	if (!user) throw new Error("User not found");
 
-// 	const { verificationId, expiresIn } = await sendOtp(phone);
+	const { verificationId, expiresIn, code } = await sendOtp(phone);
 
-// 	return { verificationId, expiresIn };
-// };
+	return { verificationId, expiresIn, code };
+};
 
-// export const resetPasswordWithOtp = async (
-// 	phone: string,
-// 	code: string,
-// 	verificationId: string,
-// 	newPassword: string
-// ) => {
-// 	await verifyOtp(phone, code, verificationId);
-
-// 	const hashed = await hashPassword(newPassword);
-// 	await prisma.user.update({
-// 		where: { phone },
-// 		data: {
-// 			password: hashed,
-// 		},
-// 	});
-// };
+export const resetPasswordWithOtp = async (
+	phone: string,
+	code: string,
+	verificationId: string,
+	newPassword: string
+) => {
+	const result = await verifyOtp(phone, code, verificationId);
+	console.log(result);
+	const hashed = await hashPassword(newPassword);
+	await prisma.user.update({
+		where: { phone },
+		data: {
+			password: hashed,
+		},
+	});
+};
