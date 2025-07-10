@@ -17,17 +17,22 @@ import { requestRateLimiter } from "../../utils/rateLimiter";
 const router = Router();
 
 // router.post("/signup", signup);
-router.post("/login", login);
-router.post("/logout", logout);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", resetPassword);
-router.post("/refresh-access-token", refreshAccessToken);
-router.post("/refresh-cookie-token", refreshCookieToken);
-router.post("/request-password-otp", requestPasswordOtp);
-router.post("/reset-password-otp", resetPasswordWithOtp);
-router.post("/signup", requestRateLimiter("Registration"), signup);
-// router.post("/login", requestRateLimiter("Login"), login);
-// router.post("/forgot-password", requestRateLimiter("OTP"), forgotPassword);
+// router.post("/login", login);
+// router.post("/request-password-otp", requestPasswordOtp);
+
+router.post("/signup", requestRateLimiter("Registration"), signup); // signup route
+router.post("/login", requestRateLimiter("Login"), login); // login route
+router.post("/logout", logout); // logout route
+router.post("/forgot-password", forgotPassword); // forgot password route
+router.post("/reset-password", resetPassword); // reset password route
+router.post("/refresh-access-token", refreshAccessToken); // access token refresh route
+router.post("/refresh-cookie-token", refreshCookieToken); // refresh token regenrate route
+router.post(
+	"/request-password-otp",
+	requestRateLimiter("OTP"),
+	requestPasswordOtp
+); // request password otp route
+router.post("/reset-password-otp", resetPasswordWithOtp); // reset password with otp route
 
 router.get("/user", requireAuth, (req, res) => {
 	res.json({
@@ -36,6 +41,7 @@ router.get("/user", requireAuth, (req, res) => {
 		data: { user: (req as any).user },
 	});
 });
+
 router.get("/users", requireAdmin, getAllUsers);
 
 export default router;
