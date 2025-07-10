@@ -8,7 +8,7 @@ export const sendOtp = async (phone: string) => {
 			Authorization: `Bearer ${process.env.AFRO_MESSAGE_TRIAL_TOKEN}`,
 		},
 		params: {
-			from: process.env.AFRO_MESSAGE_IDENTIFIER_ID, // optional
+			from: process.env.AFRO_MESSAGE_IDENTIFIER_ID,
 			sender: process.env.AFRO_MESSAGE_SENDER_ID,
 			to: phone,
 			len: 6,
