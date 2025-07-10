@@ -9,7 +9,7 @@ export const sendOtp = async (phone: string) => {
 		},
 		params: {
 			from: process.env.AFRO_MESSAGE_IDENTIFIER_ID,
-			sender: process.env.AFRO_MESSAGE_SENDER_ID,
+			// sender: process.env.AFRO_MESSAGE_SENDER_ID,
 			to: phone,
 			len: 6,
 			t: 0,
@@ -24,13 +24,14 @@ export const sendOtp = async (phone: string) => {
 	const result = response.data;
 
 	if (result.acknowledge !== "success") {
-		throw new Error(result.response?.message || "Failed to send OTP");
+		throw new Error(result.response?.errors || "Failed to send OTP");
+		// console.log(result);
 	}
 
 	return {
 		verificationId: result.response.verificationId,
 		expiresIn,
-		code: result.response.code, // ⚠️ remove this in production!
+		code: result.response.code, // for dev purposes
 	};
 };
 
@@ -55,7 +56,7 @@ export const verifyOtp = async (
 	const result = response.data;
 
 	if (result.acknowledge !== "success") {
-		throw new Error("Invalid or expired code");
+		throw new Error(result.response?.errors || "Invalid or expired code");
 	}
 
 	return result.response; // includes phone, code, verificationId, etc.
