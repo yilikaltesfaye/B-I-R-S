@@ -3,15 +3,17 @@ import { comparePasswords, hashPassword } from "../../utils/hash";
 import {
 	generateAccessToken,
 	generateRefreshToken,
+	generateResetToken,
 	verifyRefreshToken,
 } from "../../utils/token";
+// import { sendOtp, verifyOtp } from "./otp.service";
 
 export const signup = async (
 	name: string,
-	email: string,
 	phone: string,
 	password: string,
-	region: string
+	region: string,
+	email?: string
 ) => {
 	if (!name || !phone || !password || !region)
 		throw new Error("All Input fields should be submitted");
@@ -70,3 +72,69 @@ export const refreshToken = (token: string) => {
 		throw new Error("invalid or expired token");
 	}
 };
+
+export const forgotPassword = async (phone: string) => {
+	const user = await prisma.user.findUnique({ where: { phone } });
+	if (!user) return;
+	const { token, expiry } = generateResetToken();
+
+	await prisma.user.update({
+		where: { phone },
+		data: {
+			resetToken: token,
+			resetTokenExp: expiry.toISOString(),
+		},
+	});
+
+	return token;
+};
+
+export const resetPassword = async (token: string, newPassword: string) => {
+	const user = await prisma.user.findFirst({
+		where: {
+			resetToken: token,
+			resetTokenExp: {
+				gte: new Date().toISOString(),
+			},
+		},
+	});
+	if (!user) throw new Error("invalid or expired reset token");
+
+	const hashed = await hashPassword(newPassword);
+	await prisma.user.update({
+		where: {
+			id: user.id,
+		},
+		data: {
+			password: hashed,
+			resetToken: null,
+			resetTokenExp: null,
+		},
+	});
+};
+
+// export const requestPasswordResetOtp = async (phone: string) => {
+// 	const user = await prisma.user.findUnique({ where: { phone } });
+// 	if (!user) throw new Error("User not found");
+
+// 	const { verificationId, expiresIn } = await sendOtp(phone);
+
+// 	return { verificationId, expiresIn };
+// };
+
+// export const resetPasswordWithOtp = async (
+// 	phone: string,
+// 	code: string,
+// 	verificationId: string,
+// 	newPassword: string
+// ) => {
+// 	await verifyOtp(phone, code, verificationId);
+
+// 	const hashed = await hashPassword(newPassword);
+// 	await prisma.user.update({
+// 		where: { phone },
+// 		data: {
+// 			password: hashed,
+// 		},
+// 	});
+// };
