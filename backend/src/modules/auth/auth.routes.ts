@@ -5,25 +5,27 @@ import {
 	logout,
 	forgotPassword, // tokken based forget password
 	resetPassword, // token based reset password
-	refreshToken,
-	// requestPasswordOtp, // opt based request password
-	// resetPasswordWithOtp, // opt based reset password
+	refreshAccessToken,
+	refreshCookieToken,
+	requestPasswordOtp, // opt based request password
+	resetPasswordWithOtp, // opt based reset password
 	getAllUsers,
 } from "./auth.controller";
-import { requireAuth } from "./auth.middleware";
-// import { requestRateLimiter } from "../../utils/rateLimiter";
+import { requireAdmin, requireAuth } from "./auth.middleware";
+import { requestRateLimiter } from "../../utils/rateLimiter";
 
 const router = Router();
 
-router.post("/signup", signup);
+// router.post("/signup", signup);
 router.post("/login", login);
 router.post("/logout", logout);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
-router.post("/refresh-token", refreshToken);
-// router.post("/request-password-otp", requestPasswordOtp);
-// router.post("/reset-password-otp", resetPasswordWithOtp);
-// router.post("/signup", requestRateLimiter("Registration"), signup);
+router.post("/refresh-access-token", refreshAccessToken);
+router.post("/refresh-cookie-token", refreshCookieToken);
+router.post("/request-password-otp", requestPasswordOtp);
+router.post("/reset-password-otp", resetPasswordWithOtp);
+router.post("/signup", requestRateLimiter("Registration"), signup);
 // router.post("/login", requestRateLimiter("Login"), login);
 // router.post("/forgot-password", requestRateLimiter("OTP"), forgotPassword);
 
@@ -34,6 +36,6 @@ router.get("/user", requireAuth, (req, res) => {
 		data: { user: (req as any).user },
 	});
 });
-router.get("/users", requireAuth, getAllUsers);
+router.get("/users", requireAdmin, getAllUsers);
 
 export default router;
