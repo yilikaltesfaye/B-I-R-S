@@ -1,14 +1,61 @@
-import prisma from "../../prisma/client";
+import prisma from "../../clients/prismaClient";
+import { redis } from "../../clients/redisClient";
 import { comparePasswords, hashPassword } from "../../utils/hash";
 import {
 	generateAccessToken,
+	generateGuestToken,
 	generateRefreshToken,
-	generateResetToken,
 	verifyRefreshToken,
 } from "../../utils/token";
 import { sendOtp, verifyOtp } from "./otp.service";
 
-export const signup = async (
+// request otp for new accounts
+
+export const registerOtpService = async (phone: string) => {
+	const exisiting = await prisma.user.findUnique({ where: { phone } });
+	if (exisiting) throw new Error("Phone number is already in use");
+
+	const { verificationId, expiresIn, code } = await sendOtp(phone);
+
+	return { verificationId, expiresIn, code };
+};
+
+// request otp for new accounts
+
+export const forgetPasswordOtpService = async (phone: string) => {
+	const user = await prisma.user.findUnique({ where: { phone } });
+	if (!user) throw new Error("Your User does not exist in the database");
+
+	const { verificationId, expiresIn, code } = await sendOtp(phone);
+
+	return { verificationId, expiresIn, code };
+};
+
+// verify otp and sends back token for reset
+
+export const verifyOtpService = async (
+	phone: string,
+	code: string,
+	verificationId: string
+) => {
+	await verifyOtp(phone, code, verificationId);
+
+	const { guestToken, expirySeconds } = generateGuestToken();
+
+	// edge case
+	const exists = await redis.get(`verified:${phone}`);
+	if (exists) {
+		await redis.del(`verified:${phone}`);
+	}
+
+	await redis.set(`verified:${phone}`, guestToken, "EX", expirySeconds);
+
+	return { guestToken, expirySeconds };
+};
+
+// registration service and sends back access and refresh tokens
+
+export const registerService = async (
 	name: string,
 	phone: string,
 	password: string,
@@ -21,6 +68,7 @@ export const signup = async (
 	const exisiting = await prisma.user.findUnique({
 		where: { phone },
 	});
+
 	if (exisiting) throw new Error("Phone Number is already in use");
 	// if (exisiting) throw new Error("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
 
@@ -40,24 +88,51 @@ export const signup = async (
 
 	return { accessToken, refreshToken };
 };
-export const login = async (phone: string, password: string) => {
-	if (!phone || !password)
-		throw new Error("All Input fields should be submitted");
 
+// Login service and sends back access and refresh tokens
+export const loginService = async (phone: string, password: string) => {
+	if (!phone || !password) {
+		throw new Error("All Input fields should be submitted");
+	}
 	const user = await prisma.user.findUnique({
 		where: { phone },
 	});
-	if (!user) throw new Error("Invalid Phone");
+	if (!user) throw new Error("Invalid Phone or Password");
 	// if (!user) throw new Error("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
+
 	const valid = await comparePasswords(password, user.password);
-	if (!valid) throw new Error("Invalid Password");
+	if (!valid) throw new Error("Invalid Password or Password");
 
 	const refreshToken = generateRefreshToken(user.id, user.role);
 	const accessToken = generateAccessToken(user.id, user.role, refreshToken);
 
 	return { accessToken, refreshToken };
 };
-export const refreshAccessToken = (token: string) => {
+
+// Reset Password Service
+
+export const resetPasswordService = async (
+	phone: string,
+	newPassword: string
+) => {
+	if (!phone || !newPassword) {
+		throw new Error("phone number or new Passowrd is not submitted");
+	}
+
+	const hashed = await hashPassword(newPassword);
+	await prisma.user.update({
+		where: {
+			phone,
+		},
+		data: {
+			password: hashed,
+		},
+	});
+};
+
+// Regenerate Access Token Service
+
+export const regenerateAccessTokenService = (token: string) => {
 	if (!token) throw new Error("No token Provided");
 
 	try {
@@ -74,7 +149,10 @@ export const refreshAccessToken = (token: string) => {
 		throw new Error("invalid or expired token");
 	}
 };
-export const refreshCookieToken = async (userId: string) => {
+
+// Regenerate Refresh Token Service
+
+export const regenerateRefreshTokenService = async (userId: string) => {
 	if (!userId) throw new Error("No user Id and user role Provided");
 
 	try {
@@ -91,70 +169,4 @@ export const refreshCookieToken = async (userId: string) => {
 	} catch (error) {
 		throw new Error("invalid or expired token");
 	}
-};
-
-export const forgotPassword = async (phone: string) => {
-	const user = await prisma.user.findUnique({ where: { phone } });
-	if (!user) return;
-	const { token, expiry } = generateResetToken();
-
-	await prisma.user.update({
-		where: { phone },
-		data: {
-			resetToken: token,
-			resetTokenExp: expiry.toISOString(),
-		},
-	});
-
-	return token;
-};
-
-export const resetPassword = async (token: string, newPassword: string) => {
-	const user = await prisma.user.findFirst({
-		where: {
-			resetToken: token,
-			resetTokenExp: {
-				gte: new Date().toISOString(),
-			},
-		},
-	});
-	if (!user) throw new Error("invalid or expired reset token");
-
-	const hashed = await hashPassword(newPassword);
-	await prisma.user.update({
-		where: {
-			id: user.id,
-		},
-		data: {
-			password: hashed,
-			resetToken: null,
-			resetTokenExp: null,
-		},
-	});
-};
-
-export const requestPasswordResetOtp = async (phone: string) => {
-	const user = await prisma.user.findUnique({ where: { phone } });
-	if (!user) throw new Error("User not found");
-
-	const { verificationId, expiresIn, code } = await sendOtp(phone);
-
-	return { verificationId, expiresIn, code };
-};
-
-export const resetPasswordWithOtp = async (
-	phone: string,
-	code: string,
-	verificationId: string,
-	newPassword: string
-) => {
-	const result = await verifyOtp(phone, code, verificationId);
-	console.log(result);
-	const hashed = await hashPassword(newPassword);
-	await prisma.user.update({
-		where: { phone },
-		data: {
-			password: hashed,
-		},
-	});
 };
