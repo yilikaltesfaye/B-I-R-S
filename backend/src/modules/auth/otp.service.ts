@@ -25,7 +25,6 @@ export const sendOtp = async (phone: string) => {
 
 	if (result.acknowledge !== "success") {
 		throw new Error(result.response?.errors || "Failed to send OTP");
-		// console.log(result);
 	}
 
 	return {
@@ -59,5 +58,5 @@ export const verifyOtp = async (
 		throw new Error(result.response?.errors || "Invalid or expired code");
 	}
 
-	return result.response; // includes phone, code, verificationId, etc.
+	return result.response;
 };
