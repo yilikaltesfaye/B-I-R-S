@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
+import { nanoid } from "nanoid";
 
 export const generateAccessToken = (
 	userId: string,
@@ -28,8 +28,8 @@ export const verifyAccessToken = (token: string, refreshToken: string) => {
 	};
 };
 
-export const generateResetToken = () => {
-	const token = crypto.randomBytes(32).toString("hex");
-	const expiry = new Date(Date.now() + 1000 * 60 * 15);
-	return { token, expiry };
+export const generateGuestToken = () => {
+	const guestToken = nanoid(6); // 6 char OTP
+	const expirySeconds = 15 * 60;
+	return { guestToken, expirySeconds };
 };
