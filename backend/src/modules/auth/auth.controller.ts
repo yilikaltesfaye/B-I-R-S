@@ -309,10 +309,10 @@ export const regenerateRefreshTokenController = async (
 	res: Response
 ) => {
 	try {
-		const { userId, userRole } = req.body.userId;
+		const userId = req.body.userId;
 
-		if (!userId || !userRole) {
-			throw new Error("User Id or userRole is missing");
+		if (!userId) {
+			throw new Error("User Id is missing");
 		}
 
 		const { refreshToken } =

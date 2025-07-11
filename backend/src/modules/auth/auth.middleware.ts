@@ -15,7 +15,7 @@ export const requireAuth = (
 	const refreshToken = req.body?.refreshToken || req.cookies.refreshToken;
 	const token = authHeader?.split(" ")[1];
 	if (!token) {
-		res.status(401).json({ error: "Access token required" });
+		res.status(401).json({ status: "fail", message: "Access token required" });
 		return;
 	}
 
@@ -25,7 +25,9 @@ export const requireAuth = (
 		req.userRole = payload.userRole;
 		next();
 	} catch (error) {
-		res.status(400).json({ error: "Invalid or expired Token" });
+		res
+			.status(400)
+			.json({ status: "fail", message: "Invalid or expired Token" });
 	}
 };
 export const requireAdmin = (
@@ -37,7 +39,7 @@ export const requireAdmin = (
 	const refreshToken = req.body?.refreshToken || req.cookies.refreshToken;
 	const token = authHeader?.split(" ")[1];
 	if (!token) {
-		res.status(401).json({ error: "Access token required" });
+		res.status(401).json({ status: "fail", message: "Access token required" });
 		return;
 	}
 
@@ -47,13 +49,17 @@ export const requireAdmin = (
 		req.userRole = payload.userRole;
 
 		if (req.userRole !== "ADMIN") {
-			res.status(403).json({ error: "Access denied: Admins only" });
+			res
+				.status(403)
+				.json({ status: "fail", message: "Access denied: Admins only" });
 			return;
 		}
 
 		next();
 	} catch (error) {
-		res.status(400).json({ error: "Invalid or expired Token" });
+		res
+			.status(400)
+			.json({ status: "fail", message: "Invalid or expired Token" });
 	}
 };
 export const requireAuthority = (
@@ -65,7 +71,7 @@ export const requireAuthority = (
 	const refreshToken = req.body?.refreshToken || req.cookies.refreshToken;
 	const token = authHeader?.split(" ")[1];
 	if (!token) {
-		res.status(401).json({ error: "Access token required" });
+		res.status(401).json({ status: "fail", message: "Access token required" });
 		return;
 	}
 
@@ -75,12 +81,16 @@ export const requireAuthority = (
 		req.userRole = payload.userRole;
 
 		if (req.userRole !== "AUTHORITY") {
-			res.status(403).json({ error: "Access denied: Authority only" });
+			res
+				.status(403)
+				.json({ status: "fail", message: "Access denied: Authority only" });
 			return;
 		}
 
 		next();
 	} catch (error) {
-		res.status(400).json({ error: "Invalid or expired Token" });
+		res
+			.status(400)
+			.json({ status: "fail", message: "Invalid or expired Token" });
 	}
 };

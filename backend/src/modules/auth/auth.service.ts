@@ -137,7 +137,6 @@ export const regenerateAccessTokenService = (token: string) => {
 
 	try {
 		const payload = verifyRefreshToken(token);
-		console.log(payload.userRole);
 		const newAccessToken = generateAccessToken(
 			payload.userId,
 			payload.userRole,
