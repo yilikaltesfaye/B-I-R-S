@@ -1,8 +1,13 @@
 import z from "zod";
 
+const allowedTypes = ["FORGETPASSWORD", "NEWACCOUNT"] as const;
+
 export const RequestOtpSchema = z.object({
 	phoneNumber: z.string().min(9),
-	type: z.string().toUpperCase(),
+	type: z
+		.string()
+		.transform((val) => val.toUpperCase())
+		.pipe(z.enum(allowedTypes)),
 });
 
 export const VerifyOtpSchema = z.object({
