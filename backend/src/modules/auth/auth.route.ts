@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { requestRateLimiter } from "../../utils/rateLimiter";
 import { requireAdmin, requireAuth } from "./auth.middleware";
-import { getAllUsers } from "./auth.depricated";
+import { getAllUsers, getUserData } from "./auth.depricated";
 import {
 	loginController,
 	logoutController,
@@ -36,5 +36,6 @@ router.post("/refresh-access-token", regenerateAccessTokenController); // access
 router.post("/regenerate-refresh-token", regenerateRefreshTokenController); // refresh token regenerate route
 
 router.get("/users", requireAdmin, getAllUsers); //  get all users for admin
+router.get("/user", requireAuth, getUserData); //  get user
 
 export default router;

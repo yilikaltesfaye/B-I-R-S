@@ -3,6 +3,7 @@ import z from "zod";
 import { checkIfUserExistShema } from "../../types/auth.interface";
 import { standardPhone } from "../../utils/standardPhoneNumber";
 import prisma from "../../clients/prismaClient";
+import { AuthedRequest } from "./auth.middleware";
 
 // Check If User Exists Controller
 
@@ -48,11 +49,44 @@ export const checkIfUserExistService = async (phone: string) => {
 /// trying get all user to be deleted later
 export const getAllUsers = async (req: any, res: any) => {
 	try {
-		const users = await prisma.user.findMany();
+		const users = await prisma.user.findMany({
+			select: {
+				id: true,
+				name: true,
+				role: true,
+				email: true,
+				region: true,
+				updatedAt: true,
+				createdAt: true,
+			},
+		});
 		res.json({
 			status: "success",
 			message: "protected route only for users",
 			data: { users },
+		});
+	} catch (error: any) {
+		res.status(400).json({ error: error.message });
+	}
+};
+export const getUserData = async (req: AuthedRequest, res: Response) => {
+	try {
+		const userId = req.userId;
+		if (!userId) {
+			throw new Error("no user id was provided");
+		}
+		const user = await prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+		});
+		if (!user) {
+			throw new Error("no user was found with your Id");
+		}
+		res.json({
+			status: "success",
+			message: "protected route only for users",
+			data: { user },
 		});
 	} catch (error: any) {
 		res.status(400).json({ error: error.message });
