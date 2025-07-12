@@ -13,16 +13,85 @@ enum Role {
   ADMIN
 }
 
+enum Status {
+  PENDING
+  IN_PROGRESS
+  FIXED
+  REJECTED
+}
+
 model User {
-  id            String   @id @default(uuid())
-  name          String
-  email         String?  @unique
-  phone         String   @unique
-  password      String
-  role          Role     @default(USER)
-  region        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  resetToken    String?
-  resetTokenExp String?
+  id              String   @id @default(uuid())
+  name            String
+  email           String?  @unique
+  phone           String   @unique
+  password        String
+  role            Role     @default(USER)
+  region          String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  refreshToken    String?
+  refreshTokenExp String?
+
+  authorityStaff AuthorityStaff?
+  Report         Report[]
+}
+
+model AuthorityOffice {
+  id             Int               @id @default(autoincrement())
+  officeName     String
+  email          String
+  phone          String            @unique
+  address        Json
+  iconUrl        String
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  parentOfficeId Int?
+  parentOffice   AuthorityOffice?  @relation("OfficeHierarchy", fields: [parentOfficeId], references: [id])
+  childOffices   AuthorityOffice[] @relation("OfficeHierarchy")
+
+  categories     Category[]
+  authorityStaff AuthorityStaff[]
+  Report         Report[]
+}
+
+model Category {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  authorityOffices AuthorityOffice[]
+  Report           Report[]
+}
+
+model AuthorityStaff {
+  userId            String          @id
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorityOfficeId Int
+  authorityOffice   AuthorityOffice @relation(fields: [authorityOfficeId], references: [id], onDelete: Cascade)
+  position          String          @default("Staff")
+}
+
+model Report {
+  id               String                               @id @default(uuid())
+  location         Unsupported("geography(Point,4326)")
+  address          Json
+  description      String
+  photoUrls        String[]
+  status           Status                               @default(PENDING)
+  reporterConfirm  Boolean                              @default(false)
+  communityConfirm Int                                  @default(0)
+  message          String
+  submittedAt      DateTime                             @default(now())
+  updatedAt        DateTime                             @updatedAt
+  closedAt         DateTime?
+
+  userId            String?
+  user              User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorityOfficeId Int?
+  authorityOffice   AuthorityOffice? @relation(fields: [authorityOfficeId], references: [id], onDelete: SetNull)
+  categoryId        Int?
+  category          Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 }
