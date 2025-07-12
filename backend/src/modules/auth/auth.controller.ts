@@ -104,13 +104,14 @@ export const registerController = async (req: Request, res: Response) => {
 
 		await checkRedis(phone, validated.guestToken);
 
-		const { accessToken, refreshToken } = await AuthService.registerService(
-			validated.fullName,
+		const { accessToken, refreshToken } = await AuthService.registerService({
+			name: validated.fullName,
 			phone,
-			validated.password,
-			validated.region,
-			validated.email
-		);
+			password: validated.password,
+			region: validated.region,
+			appContext: validated.appContext,
+			email: validated.email,
+		});
 
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 
@@ -158,10 +159,11 @@ export const loginController = async (req: Request, res: Response) => {
 		const validated = LoginSchema.parse(req.body);
 		const phone = standardPhone(validated.phoneNumber);
 
-		const { accessToken, refreshToken } = await AuthService.loginService(
+		const { accessToken, refreshToken } = await AuthService.loginService({
 			phone,
-			validated.password
-		);
+			password: validated.password,
+			appContext: validated.appContext,
+		});
 
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 
@@ -309,14 +311,16 @@ export const regenerateRefreshTokenController = async (
 	res: Response
 ) => {
 	try {
-		const userId = req.body.userId;
+		const { userId, appContext } = req.body;
 
-		if (!userId) {
+		if (!userId || !appContext) {
 			throw new Error("User Id is missing");
 		}
 
-		const { refreshToken } =
-			await AuthService.regenerateRefreshTokenService(userId);
+		const { refreshToken } = await AuthService.regenerateRefreshTokenService(
+			userId,
+			appContext
+		);
 		const { accessToken } =
 			AuthService.regenerateAccessTokenService(refreshToken);
 
