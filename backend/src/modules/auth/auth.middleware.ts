@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "../../utils/token";
 
-interface AuthedRequest extends Request {
+export interface AuthedRequest extends Request {
 	userId?: string;
 	userRole?: string;
 }
