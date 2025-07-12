@@ -305,6 +305,7 @@ export const regenerateAccessTokenController = async (
 };
 
 // Regenerate Refresh Roken controller and sends back access and refresh token
+// remeber to save refresh token on db
 
 export const regenerateRefreshTokenController = async (
 	req: Request,
