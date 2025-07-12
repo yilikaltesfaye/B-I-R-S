@@ -1,30 +1,28 @@
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 
-export const generateAccessToken = (
-	userId: string,
-	userRole: string,
-	refreshToken: string
-) => {
-	return jwt.sign({ userId, userRole }, refreshToken, {
+export const generateAccessToken = (payload: object) => {
+	return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET!, {
 		expiresIn: "15m",
 	});
 };
-export const generateRefreshToken = (userId: string, userRole: string) => {
-	return jwt.sign({ userId, userRole }, process.env.REFRESH_TOKEN_SECRET!, {
-		expiresIn: "7d",
+export const generateRefreshToken = (payload: object) => {
+	return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET!, {
+		expiresIn: "30d",
 	});
 };
 export const verifyRefreshToken = (token: string) => {
 	return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!) as {
 		userId: string;
 		userRole: string;
+		appContext: string;
 	};
 };
-export const verifyAccessToken = (token: string, refreshToken: string) => {
-	return jwt.verify(token, refreshToken) as {
+export const verifyAccessToken = (token: string) => {
+	return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as {
 		userId: string;
 		userRole: string;
+		appContext: string;
 	};
 };
 
