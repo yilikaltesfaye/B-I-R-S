@@ -1,5 +1,6 @@
 import prisma from "../../clients/prismaClient";
 import { redis } from "../../clients/redisClient";
+import { payloadSchema } from "../../types/auth.interface";
 import { comparePasswords, hashPassword } from "../../utils/hash";
 import {
 	generateAccessToken,
@@ -8,6 +9,21 @@ import {
 	verifyRefreshToken,
 } from "../../utils/token";
 import { sendOtp, verifyOtp } from "./otp.service";
+
+interface LoginInput {
+	phone: string;
+	password: string;
+	appContext: "user" | "authority" | "admin";
+}
+
+interface RegisterInput {
+	name: string;
+	phone: string;
+	password: string;
+	region: string;
+	appContext: "user" | "authority" | "admin";
+	email?: string;
+}
 
 // request otp for new accounts
 
@@ -55,16 +71,14 @@ export const verifyOtpService = async (
 
 // registration service and sends back access and refresh tokens
 
-export const registerService = async (
-	name: string,
-	phone: string,
-	password: string,
-	region: string,
-	email?: string
-) => {
-	if (!name || !phone || !password || !region)
-		throw new Error("All Input fields should be submitted");
-
+export const registerService = async ({
+	name,
+	phone,
+	password,
+	region,
+	appContext,
+	email,
+}: RegisterInput) => {
 	const exisiting = await prisma.user.findUnique({
 		where: { phone },
 	});
@@ -83,17 +97,23 @@ export const registerService = async (
 		},
 	});
 
-	const refreshToken = generateRefreshToken(user.id, user.role);
-	const accessToken = generateAccessToken(user.id, user.role, refreshToken);
+	const payload: payloadSchema = {
+		userId: user.id,
+		userRole: user.role,
+		appContext,
+	};
+	const refreshToken = generateRefreshToken(payload);
+	const accessToken = generateAccessToken(payload);
 
 	return { accessToken, refreshToken };
 };
 
 // Login service and sends back access and refresh tokens
-export const loginService = async (phone: string, password: string) => {
-	if (!phone || !password) {
-		throw new Error("All Input fields should be submitted");
-	}
+export const loginService = async ({
+	phone,
+	password,
+	appContext,
+}: LoginInput) => {
 	const user = await prisma.user.findUnique({
 		where: { phone },
 	});
@@ -103,8 +123,14 @@ export const loginService = async (phone: string, password: string) => {
 	const valid = await comparePasswords(password, user.password);
 	if (!valid) throw new Error("Invalid Password or Password");
 
-	const refreshToken = generateRefreshToken(user.id, user.role);
-	const accessToken = generateAccessToken(user.id, user.role, refreshToken);
+	const payload: payloadSchema = {
+		userId: user.id,
+		userRole: user.role,
+		appContext,
+	};
+
+	const refreshToken = generateRefreshToken(payload);
+	const accessToken = generateAccessToken(payload);
 
 	return { accessToken, refreshToken };
 };
@@ -115,10 +141,6 @@ export const resetPasswordService = async (
 	phone: string,
 	newPassword: string
 ) => {
-	if (!phone || !newPassword) {
-		throw new Error("phone number or new Passowrd is not submitted");
-	}
-
 	const hashed = await hashPassword(newPassword);
 	await prisma.user.update({
 		where: {
@@ -133,15 +155,10 @@ export const resetPasswordService = async (
 // Regenerate Access Token Service
 
 export const regenerateAccessTokenService = (token: string) => {
-	if (!token) throw new Error("No token Provided");
-
 	try {
 		const payload = verifyRefreshToken(token);
-		const newAccessToken = generateAccessToken(
-			payload.userId,
-			payload.userRole,
-			token
-		);
+
+		const newAccessToken = generateAccessToken(payload);
 
 		return { accessToken: newAccessToken };
 	} catch (error) {
@@ -151,9 +168,10 @@ export const regenerateAccessTokenService = (token: string) => {
 
 // Regenerate Refresh Token Service
 
-export const regenerateRefreshTokenService = async (userId: string) => {
-	if (!userId) throw new Error("No user Id and user role Provided");
-
+export const regenerateRefreshTokenService = async (
+	userId: string,
+	appContext: "user" | "authority" | "admin"
+) => {
 	try {
 		const user = await prisma.user.findUnique({
 			where: {
@@ -162,9 +180,14 @@ export const regenerateRefreshTokenService = async (userId: string) => {
 		});
 		if (!user) throw new Error("Invalid Phone");
 
-		const newRefreshToken = generateRefreshToken(user.id, user.role);
+		const payload: payloadSchema = {
+			userId: user.id,
+			userRole: user.role,
+			appContext,
+		};
+		const newRefreshToken = generateRefreshToken(payload);
 
-		return { refreshToken: newRefreshToken };
+		return { refreshToken: newRefreshToken, payload };
 	} catch (error) {
 		throw new Error("invalid or expired token");
 	}
