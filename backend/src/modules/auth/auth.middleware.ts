@@ -12,7 +12,6 @@ export const requireAuth = (
 	next: NextFunction
 ): void => {
 	const authHeader = req.headers["authorization"];
-	const refreshToken = req.body?.refreshToken || req.cookies.refreshToken;
 	const token = authHeader?.split(" ")[1];
 	if (!token) {
 		res.status(401).json({ status: "fail", message: "Access token required" });
@@ -20,7 +19,7 @@ export const requireAuth = (
 	}
 
 	try {
-		const payload = verifyAccessToken(token, refreshToken);
+		const payload = verifyAccessToken(token);
 		req.userId = payload.userId;
 		req.userRole = payload.userRole;
 		next();
@@ -36,7 +35,6 @@ export const requireAdmin = (
 	next: NextFunction
 ): void => {
 	const authHeader = req.headers["authorization"];
-	const refreshToken = req.body?.refreshToken || req.cookies.refreshToken;
 	const token = authHeader?.split(" ")[1];
 	if (!token) {
 		res.status(401).json({ status: "fail", message: "Access token required" });
@@ -44,7 +42,7 @@ export const requireAdmin = (
 	}
 
 	try {
-		const payload = verifyAccessToken(token, refreshToken);
+		const payload = verifyAccessToken(token);
 		req.userId = payload.userId;
 		req.userRole = payload.userRole;
 
@@ -62,13 +60,13 @@ export const requireAdmin = (
 			.json({ status: "fail", message: "Invalid or expired Token" });
 	}
 };
+
 export const requireAuthority = (
 	req: AuthedRequest,
 	res: Response,
 	next: NextFunction
 ): void => {
 	const authHeader = req.headers["authorization"];
-	const refreshToken = req.body?.refreshToken || req.cookies.refreshToken;
 	const token = authHeader?.split(" ")[1];
 	if (!token) {
 		res.status(401).json({ status: "fail", message: "Access token required" });
@@ -76,7 +74,7 @@ export const requireAuthority = (
 	}
 
 	try {
-		const payload = verifyAccessToken(token, refreshToken);
+		const payload = verifyAccessToken(token);
 		req.userId = payload.userId;
 		req.userRole = payload.userRole;
 
