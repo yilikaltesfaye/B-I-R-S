@@ -8,19 +8,29 @@ import {
 	generateRefreshToken,
 	verifyRefreshToken,
 } from "../../utils/token";
+import { getUserById } from "../user/user.service";
 import { sendOtp, verifyOtp } from "./otp.service";
 
 interface LoginInput {
 	phone: string;
 	password: string;
-	appContext: "user" | "authority" | "admin";
+	appContext: string;
+}
+interface Address {
+	region: string;
+	zone?: string;
+	woreda?: string;
+	city?: string;
+	subCity?: string;
+	kebele?: string;
+	[key: string]: any;
 }
 
 interface RegisterInput {
 	name: string;
 	phone: string;
 	password: string;
-	region: string;
+	address: Address;
 	appContext: "user" | "authority" | "admin";
 	email?: string;
 }
@@ -75,7 +85,7 @@ export const registerService = async ({
 	name,
 	phone,
 	password,
-	region,
+	address,
 	appContext,
 	email,
 }: RegisterInput) => {
@@ -93,19 +103,40 @@ export const registerService = async ({
 			email,
 			phone,
 			password: hashed,
-			region,
+			address,
 		},
 	});
+
+	if (appContext === "admin" && user.role !== "ADMIN") {
+		return {
+			accessDenied: true,
+			reason:
+				"Access denied: Registration was complete but as a user you can't access the admin platform. Use the Citizen platform.",
+		};
+	}
+	if (appContext === "authority" && user.role !== "AUTHORITY") {
+		return {
+			accessDenied: true,
+			reason:
+				"Access denied: Registration was complete but as a user you can't access the authority platform. Use the Citizen platform.",
+		};
+	}
 
 	const payload: payloadSchema = {
 		userId: user.id,
 		userRole: user.role,
-		appContext,
 	};
 	const refreshToken = generateRefreshToken(payload);
 	const accessToken = generateAccessToken(payload);
 
-	return { accessToken, refreshToken };
+	const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
+	await prisma.user.update({
+		where: { id: user.id },
+		data: { refreshToken, refreshTokenExp: refreshTokenExpiry },
+	});
+
+	return { accessToken, refreshToken, user };
 };
 
 // Login service and sends back access and refresh tokens
@@ -121,18 +152,35 @@ export const loginService = async ({
 	// if (!user) throw new Error("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
 
 	const valid = await comparePasswords(password, user.password);
-	if (!valid) throw new Error("Invalid Password or Password");
+	if (!valid) throw new Error("Invalid Phone or password");
+
+	if (appContext === "admin" && user.role !== "ADMIN") {
+		return {
+			accessDenied: true,
+			reason: "Access denied: Not an admin.",
+		};
+	}
+	if (appContext === "authority" && user.role !== "AUTHORITY") {
+		return {
+			accessDenied: true,
+			reason: "Access denied: Not an authority",
+		};
+	}
 
 	const payload: payloadSchema = {
 		userId: user.id,
 		userRole: user.role,
-		appContext,
 	};
 
 	const refreshToken = generateRefreshToken(payload);
 	const accessToken = generateAccessToken(payload);
+	const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
-	return { accessToken, refreshToken };
+	await prisma.user.update({
+		where: { id: user.id },
+		data: { refreshToken, refreshTokenExp: refreshTokenExpiry },
+	});
+	return { accessToken, refreshToken, user };
 };
 
 // Reset Password Service
@@ -154,11 +202,19 @@ export const resetPasswordService = async (
 
 // Regenerate Access Token Service
 
-export const regenerateAccessTokenService = (token: string) => {
+export const regenerateAccessTokenService = async (refreshToken: string) => {
 	try {
-		const payload = verifyRefreshToken(token);
+		const payload = verifyRefreshToken(refreshToken);
 
-		const newAccessToken = generateAccessToken(payload);
+		const user = await getUserById(payload.userId);
+		if (!user || user.refreshToken !== refreshToken) {
+			throw new Error("Refresh token invalid or revoked");
+		}
+
+		const newAccessToken = generateAccessToken({
+			userId: payload.userId,
+			userRole: payload.userRole,
+		});
 
 		return { accessToken: newAccessToken };
 	} catch (error) {
@@ -170,12 +226,15 @@ export const regenerateAccessTokenService = (token: string) => {
 
 export const regenerateRefreshTokenService = async (
 	userId: string,
-	appContext: "user" | "authority" | "admin"
+	refreshToken: string,
+	refreshTokenExpiry: Date
 ) => {
 	try {
 		const user = await prisma.user.findUnique({
 			where: {
 				id: userId,
+				refreshToken: refreshToken,
+				refreshTokenExp: refreshTokenExpiry,
 			},
 		});
 		if (!user) throw new Error("Invalid Phone");
@@ -183,11 +242,24 @@ export const regenerateRefreshTokenService = async (
 		const payload: payloadSchema = {
 			userId: user.id,
 			userRole: user.role,
-			appContext,
 		};
 		const newRefreshToken = generateRefreshToken(payload);
+		const newRefreshTokenExpiry = new Date(
+			Date.now() + 15 * 24 * 60 * 60 * 1000
+		);
 
-		return { refreshToken: newRefreshToken, payload };
+		await prisma.user.update({
+			where: { id: user.id },
+			data: {
+				refreshToken: newRefreshToken,
+				refreshTokenExp: newRefreshTokenExpiry,
+			},
+		});
+
+		return {
+			newRefreshToken,
+			newRefreshTokenExpiry,
+		};
 	} catch (error) {
 		throw new Error("invalid or expired token");
 	}
