@@ -17,12 +17,16 @@ import {
 } from "../../utils/token";
 import { getUserById } from "../user/user.service";
 import { sendOtp, verifyOtp } from "../../utils/otp";
+import { HttpError } from "../../middlewares/HttpError";
+import { checkRedis } from "../../utils/checkRedisStore";
 
 // request otp for new accounts
 
 export const registerOtpService = async (phone: string) => {
 	const exisiting = await prisma.user.findUnique({ where: { phone } });
-	if (exisiting) throw new Error("Phone number is already in use");
+	if (exisiting) {
+		throw new HttpError("Phone number is already in use", 409);
+	}
 
 	const { verificationId, expiresIn, code } = await sendOtp(phone);
 
@@ -33,7 +37,8 @@ export const registerOtpService = async (phone: string) => {
 
 export const forgetPasswordOtpService = async (phone: string) => {
 	const user = await prisma.user.findUnique({ where: { phone } });
-	if (!user) throw new Error("Your User does not exist in the database");
+	if (!user)
+		throw new HttpError("Your User does not exist in the database", 404);
 
 	const { verificationId, expiresIn, code } = await sendOtp(phone);
 
@@ -65,8 +70,11 @@ export const registerService = async (data: RegisterInterface) => {
 	const exisiting = await prisma.user.findUnique({
 		where: { phone: data.phone },
 	});
+	await checkRedis(data.phone, data.guestToken);
 
-	if (exisiting) throw new Error("Phone Number is already in use");
+	if (exisiting) {
+		throw new HttpError("Phone number is already in use", 409);
+	}
 	// if (exisiting) throw new Error("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
 
 	const hashed = await hashPassword(data.password);
@@ -117,11 +125,11 @@ export const loginService = async (data: LoginInterface) => {
 	const user = await prisma.user.findUnique({
 		where: { phone: data.phone },
 	});
-	if (!user) throw new Error("Invalid Phone or Password");
-	// if (!user) throw new Error("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
+	if (!user) throw new HttpError("Invalid Phone or Password", 401);
+	// if (!user) throw new HttpError("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
 
 	const valid = await comparePasswords(data.password, user.password);
-	if (!valid) throw new Error("Invalid Phone or password");
+	if (!valid) throw new HttpError("Invalid Phone or Password", 401);
 
 	if (data.appContext === "admin" && user.role !== "ADMIN") {
 		return {
@@ -155,6 +163,8 @@ export const loginService = async (data: LoginInterface) => {
 // Reset Password Service
 
 export const resetPasswordService = async (data: ResetPasswordInterface) => {
+	await checkRedis(data.phone, data.guestToken);
+
 	const hashed = await hashPassword(data.newPassword);
 	await prisma.user.update({
 		where: {
@@ -169,62 +179,24 @@ export const resetPasswordService = async (data: ResetPasswordInterface) => {
 // Regenerate Access Token Service
 
 export const regenerateAccessTokenService = async (refreshToken: string) => {
-	try {
-		const payload = verifyRefreshToken(refreshToken);
-
-		const user = await getUserById(payload.userId);
-		if (!user || user.refreshToken !== refreshToken) {
-			throw new Error("Refresh token invalid or revoked");
-		}
-
-		const newAccessToken = generateAccessToken({
-			userId: payload.userId,
-			userRole: payload.userRole,
-		});
-
-		return { accessToken: newAccessToken };
-	} catch (error) {
-		throw new Error("invalid or expired token");
+	if (!refreshToken) {
+		throw new HttpError("Refresh token is required", 400);
 	}
-};
-
-// Regenerate Refresh Token Service
-
-export const regenerateRefreshTokenService = async (
-	data: regenerateRefreshTokenInterface
-) => {
+	let payload;
 	try {
-		const user = await prisma.user.findUnique({
-			where: {
-				id: data.userId,
-				refreshToken: data.refreshToken,
-				refreshTokenExp: data.refreshTokenExpiry,
-			},
-		});
-		if (!user) throw new Error("Invalid Phone");
-
-		const payload: PayloadInterface = {
-			userId: user.id,
-			userRole: user.role,
-		};
-		const newRefreshToken = generateRefreshToken(payload);
-		const newRefreshTokenExpiry = new Date(
-			Date.now() + 15 * 24 * 60 * 60 * 1000
-		);
-
-		await prisma.user.update({
-			where: { id: user.id },
-			data: {
-				refreshToken: newRefreshToken,
-				refreshTokenExp: newRefreshTokenExpiry,
-			},
-		});
-
-		return {
-			newRefreshToken,
-			newRefreshTokenExpiry,
-		};
+		payload = verifyRefreshToken(refreshToken);
 	} catch (error) {
-		throw new Error("invalid or expired token");
+		throw new HttpError("invalid or expired token", 401);
 	}
+	const user = await getUserById(payload.userId);
+	if (!user || user.refreshToken !== refreshToken) {
+		throw new HttpError("Refresh token invalid or revoked", 401);
+	}
+
+	const newAccessToken = generateAccessToken({
+		userId: payload.userId,
+		userRole: payload.userRole,
+	});
+
+	return { accessToken: newAccessToken };
 };

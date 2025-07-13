@@ -25,7 +25,7 @@ export const requireAuth = (
 		next();
 	} catch (error) {
 		res
-			.status(400)
+			.status(401)
 			.json({ status: "fail", message: "Invalid or expired Token" });
 	}
 };
