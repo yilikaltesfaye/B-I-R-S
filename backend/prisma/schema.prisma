@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum Role {
@@ -21,18 +22,18 @@ enum Status {
 }
 
 model User {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   name            String
-  email           String?  @unique
-  phone           String   @unique
+  email           String?   @unique
+  phone           String    @unique
   password        String
-  role            Role     @default(USER)
-  region          String
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  role            Role      @default(USER)
+  address         Json
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   refreshToken    String?
-  refreshTokenExp String?
+  refreshTokenExp DateTime?
 
   authorityStaff AuthorityStaff?
   Report         Report[]
@@ -75,17 +76,17 @@ model AuthorityStaff {
 }
 
 model Report {
-  id               String                               @id @default(uuid())
-  location         Unsupported("geography(Point,4326)")
+  id               String                                @id @default(uuid())
+  location         Unsupported("geography(Point,4326)")?
   address          Json
   description      String
   photoUrls        String[]
-  status           Status                               @default(PENDING)
-  reporterConfirm  Boolean                              @default(false)
-  communityConfirm Int                                  @default(0)
+  status           Status                                @default(PENDING)
+  reporterConfirm  Boolean                               @default(false)
+  communityConfirm Int                                   @default(0)
   message          String
-  submittedAt      DateTime                             @default(now())
-  updatedAt        DateTime                             @updatedAt
+  submittedAt      DateTime                              @default(now())
+  updatedAt        DateTime                              @updatedAt
   closedAt         DateTime?
 
   userId            String?
