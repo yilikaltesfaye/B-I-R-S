@@ -97,6 +97,7 @@ export const verifyOtpController = async (req: Request, res: Response) => {
 };
 
 // registration controller and sends back session and refresh tokens
+
 export const registerController = async (req: Request, res: Response) => {
 	try {
 		const validated = RegisterSchema.parse(req.body);
@@ -104,17 +105,25 @@ export const registerController = async (req: Request, res: Response) => {
 
 		await checkRedis(phone, validated.guestToken);
 
-		const { accessToken, refreshToken } = await AuthService.registerService({
+		const result = await AuthService.registerService({
 			name: validated.fullName,
 			phone,
 			password: validated.password,
-			region: validated.region,
+			address: validated.address,
 			appContext: validated.appContext,
 			email: validated.email,
 		});
 
-		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
+		if ("accessDenied" in result && result.accessDenied) {
+			return res.status(403).json({
+				status: "fail",
+				message: result.reason,
+			});
+		}
 
+		const { accessToken, refreshToken } = result;
+
+		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 		if (isMobileClient) {
 			res.json({
 				status: "success",
@@ -128,7 +137,7 @@ export const registerController = async (req: Request, res: Response) => {
 				httpOnly: true,
 				secure: process.env.NODE_ENV === "production",
 				sameSite: "lax",
-				maxAge: 7 * 24 * 60 * 60 * 1000,
+				maxAge: 15 * 24 * 60 * 60 * 1000,
 			});
 
 			res.json({
@@ -159,11 +168,18 @@ export const loginController = async (req: Request, res: Response) => {
 		const validated = LoginSchema.parse(req.body);
 		const phone = standardPhone(validated.phoneNumber);
 
-		const { accessToken, refreshToken } = await AuthService.loginService({
+		const result = await AuthService.loginService({
 			phone,
 			password: validated.password,
 			appContext: validated.appContext,
 		});
+		if ("accessDenied" in result && result.accessDenied) {
+			return res.status(403).json({
+				status: "fail",
+				message: result.reason,
+			});
+		}
+		const { accessToken, refreshToken, user } = result;
 
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 
@@ -180,7 +196,7 @@ export const loginController = async (req: Request, res: Response) => {
 				httpOnly: true,
 				secure: process.env.NODE_ENV === "production",
 				sameSite: "lax",
-				maxAge: 7 * 24 * 60 * 60 * 1000,
+				maxAge: 15 * 24 * 60 * 60 * 1000,
 			});
 
 			res.json({
@@ -268,7 +284,7 @@ export const regenerateAccessTokenController = async (
 		}
 
 		const { accessToken } =
-			AuthService.regenerateAccessTokenService(refreshToken);
+			await AuthService.regenerateAccessTokenService(refreshToken);
 
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 
@@ -280,21 +296,21 @@ export const regenerateAccessTokenController = async (
 				accessToken,
 				refreshToken,
 			});
-		} else {
-			res.cookie("refreshToken", refreshToken, {
-				httpOnly: true,
-				secure: process.env.NODE_ENV === "production",
-				sameSite: "lax",
-				maxAge: 7 * 24 * 60 * 60 * 1000,
-			});
-
-			res.json({
-				status: "success",
-				message:
-					"Access Token Regeneration. Access Token is sent in json and the old Refresh token is sent to cookie. The User now have access",
-				accessToken,
-			});
 		}
+
+		res.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "lax",
+			maxAge: 15 * 24 * 60 * 60 * 1000,
+		});
+
+		res.json({
+			status: "success",
+			message:
+				"Access Token Regeneration. Access Token is sent in json and the old Refresh token is sent to cookie. The User now have access",
+			accessToken,
+		});
 	} catch (error: any) {
 		res.status(400).json({
 			status: "fail",
@@ -312,18 +328,20 @@ export const regenerateRefreshTokenController = async (
 	res: Response
 ) => {
 	try {
-		const { userId, appContext } = req.body;
+		const { userId, refreshTokenExpiry } = req.body;
+		const refreshToken = req.body?.refreshToken || req.cookies.refreshToken;
 
-		if (!userId || !appContext) {
+		if (!userId || !refreshToken || !refreshTokenExpiry) {
 			throw new Error("User Id is missing");
 		}
 
-		const { refreshToken } = await AuthService.regenerateRefreshTokenService(
+		const { newRefreshToken } = await AuthService.regenerateRefreshTokenService(
 			userId,
-			appContext
+			refreshToken,
+			refreshTokenExpiry
 		);
 		const { accessToken } =
-			AuthService.regenerateAccessTokenService(refreshToken);
+			await AuthService.regenerateAccessTokenService(newRefreshToken);
 
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 
@@ -335,21 +353,21 @@ export const regenerateRefreshTokenController = async (
 				accessToken,
 				refreshToken,
 			});
-		} else {
-			res.cookie("refreshToken", refreshToken, {
-				httpOnly: true,
-				secure: process.env.NODE_ENV === "production",
-				sameSite: "lax",
-				maxAge: 7 * 24 * 60 * 60 * 1000,
-			});
-
-			res.json({
-				status: "success",
-				message:
-					"Refresh Token Regeneration was successfull. The new Access Token is sent in this json and the new Refresh token is sent to cookie. The User now have access",
-				accessToken,
-			});
 		}
+
+		res.cookie("refreshToken", newRefreshToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "lax",
+			maxAge: 15 * 24 * 60 * 60 * 1000,
+		});
+
+		res.json({
+			status: "success",
+			message:
+				"Refresh Token Regeneration was successfull. The new Access Token is sent in this json and the new Refresh token is sent to cookie. The User now have access",
+			accessToken,
+		});
 	} catch (error: any) {
 		res.status(400).json({
 			status: "fail",
