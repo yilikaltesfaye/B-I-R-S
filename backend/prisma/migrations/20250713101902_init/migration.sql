@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('USER', 'AUTHORITY', 'ADMIN');
 
@@ -12,12 +14,12 @@ CREATE TABLE "User" (
     "phone" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'USER',
-    "region" TEXT NOT NULL,
+    "address" JSONB NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "refreshToken" TEXT,
-    "refreshTokenExp" TEXT,
+    "refreshTokenExp" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -59,7 +61,7 @@ CREATE TABLE "AuthorityStaff" (
 -- CreateTable
 CREATE TABLE "Report" (
     "id" TEXT NOT NULL,
-    "location" geography(Point,4326) NOT NULL,
+    "location" geography(Point,4326),
     "address" JSONB NOT NULL,
     "description" TEXT NOT NULL,
     "photoUrls" TEXT[],
