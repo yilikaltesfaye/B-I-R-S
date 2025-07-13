@@ -8,7 +8,7 @@ import {
 	RegisterSchema,
 	RequestOtpSchema,
 	VerifyOtpSchema,
-} from "../../types/auth.interface";
+} from "./auth.schema";
 import { redis } from "../../clients/redisClient";
 import { checkRedis } from "../../utils/checkRedisStore";
 
@@ -69,11 +69,11 @@ export const verifyOtpController = async (req: Request, res: Response) => {
 
 		const phone = standardPhone(validated.phoneNumber);
 
-		const { guestToken, expirySeconds } = await AuthService.verifyOtpService(
+		const { guestToken, expirySeconds } = await AuthService.verifyOtpService({
 			phone,
-			validated.code,
-			validated.verificationId
-		);
+			code: validated.code,
+			verificationId: validated.verificationId,
+		});
 		const expiryMin = expirySeconds / 60;
 		res.json({
 			status: "success",
@@ -251,7 +251,10 @@ export const resetPasswordController = async (req: Request, res: Response) => {
 
 		await checkRedis(phone, validated.guestToken);
 
-		await AuthService.resetPasswordService(phone, validated.newPassword);
+		await AuthService.resetPasswordService({
+			phone,
+			newPassword: validated.newPassword,
+		});
 		res.json({
 			status: "success",
 			message: "New Password has been reset successfully",
@@ -336,9 +339,7 @@ export const regenerateRefreshTokenController = async (
 		}
 
 		const { newRefreshToken } = await AuthService.regenerateRefreshTokenService(
-			userId,
-			refreshToken,
-			refreshTokenExpiry
+			{ userId, refreshToken, refreshTokenExpiry }
 		);
 		const { accessToken } =
 			await AuthService.regenerateAccessTokenService(newRefreshToken);

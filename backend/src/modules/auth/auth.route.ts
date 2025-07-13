@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { requestRateLimiter } from "../../utils/rateLimiter";
 import { requireAdmin, requireAuth } from "./auth.middleware";
-import { getAllUsers, getUserData } from "./auth.depricated";
+import { getAllUsers, getUserData } from "../user/user.depricated";
 import {
 	loginController,
 	logoutController,
