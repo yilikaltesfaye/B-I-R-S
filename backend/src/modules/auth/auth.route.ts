@@ -35,7 +35,7 @@ router.post("/refresh-access-token", regenerateAccessTokenController); // access
 
 router.post("/regenerate-refresh-token", regenerateRefreshTokenController); // refresh token regenerate route
 
-router.get("/users", requireAdmin, getAllUsers); //  get all users for admin
+router.get("/users", requireAuth, requireAdmin, getAllUsers); //  get all users for admin
 router.get("/user", requireAuth, getUserData); //  get user
 
 export default router;
