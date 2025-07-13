@@ -89,35 +89,36 @@ export const registerService = async (data: RegisterInterface) => {
 	});
 
 	if (data.appContext === "admin" && user.role !== "ADMIN") {
-		return {
-			accessDenied: true,
-			reason:
-				"Access denied: Registration was complete but as a user you can't access the admin platform. Use the Citizen platform.",
-		};
+		throw new HttpError(
+			"Access denied: Registration was complete but as a user you can't access the admin platform. Use the Citizen platform.",
+			403
+		);
 	}
 	if (data.appContext === "authority" && user.role !== "AUTHORITY") {
-		return {
-			accessDenied: true,
-			reason:
-				"Access denied: Registration was complete but as a user you can't access the authority platform. Use the Citizen platform.",
-		};
+		throw new HttpError(
+			"Access denied: Registration was complete but as a user you can't access the authority platform. Use the Citizen platform.",
+			403
+		);
 	}
 
 	const payload: PayloadInterface = {
 		userId: user.id,
 		userRole: user.role,
 	};
-	const refreshToken = generateRefreshToken(payload);
+	const { password, refreshToken, refreshTokenExp, ...userData } = user;
+	const newRefreshToken = generateRefreshToken(payload);
 	const accessToken = generateAccessToken(payload);
 
 	const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
 	await prisma.user.update({
 		where: { id: user.id },
-		data: { refreshToken, refreshTokenExp: refreshTokenExpiry },
+		data: {
+			refreshToken: newRefreshToken,
+			refreshTokenExp: refreshTokenExpiry,
+		},
 	});
-
-	return { accessToken, refreshToken, user };
+	return { accessToken, refreshToken: newRefreshToken, userData };
 };
 
 // Login service and sends back access and refresh tokens
@@ -132,16 +133,10 @@ export const loginService = async (data: LoginInterface) => {
 	if (!valid) throw new HttpError("Invalid Phone or Password", 401);
 
 	if (data.appContext === "admin" && user.role !== "ADMIN") {
-		return {
-			accessDenied: true,
-			reason: "Access denied: Not an admin.",
-		};
+		throw new HttpError("Access denied: Not an admin.", 403);
 	}
 	if (data.appContext === "authority" && user.role !== "AUTHORITY") {
-		return {
-			accessDenied: true,
-			reason: "Access denied: Not an authority",
-		};
+		throw new HttpError("Access denied: Not an authority", 403);
 	}
 
 	const payload: PayloadInterface = {
@@ -149,15 +144,19 @@ export const loginService = async (data: LoginInterface) => {
 		userRole: user.role,
 	};
 
-	const refreshToken = generateRefreshToken(payload);
+	const { password, refreshToken, refreshTokenExp, ...userData } = user;
+	const newRefreshToken = generateRefreshToken(payload);
 	const accessToken = generateAccessToken(payload);
 	const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
 	await prisma.user.update({
 		where: { id: user.id },
-		data: { refreshToken, refreshTokenExp: refreshTokenExpiry },
+		data: {
+			refreshToken: newRefreshToken,
+			refreshTokenExp: refreshTokenExpiry,
+		},
 	});
-	return { accessToken, refreshToken, user };
+	return { accessToken, refreshToken: newRefreshToken, userData };
 };
 
 // Reset Password Service
