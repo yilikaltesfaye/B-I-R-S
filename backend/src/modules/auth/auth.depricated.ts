@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import z from "zod";
-import { checkIfUserExistShema } from "../../types/auth.interface";
 import { standardPhone } from "../../utils/standardPhoneNumber";
 import prisma from "../../clients/prismaClient";
 import { AuthedRequest } from "./auth.middleware";
 
+export const checkIfUserExistShema = z.object({
+	phoneNumber: z.string().min(9),
+});
 // Check If User Exists Controller
 
 export const checkIfUserExistController = async (
@@ -55,7 +57,7 @@ export const getAllUsers = async (req: any, res: any) => {
 				name: true,
 				role: true,
 				email: true,
-				region: true,
+				address: true,
 				updatedAt: true,
 				createdAt: true,
 			},
