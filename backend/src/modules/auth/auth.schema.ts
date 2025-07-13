@@ -1,4 +1,3 @@
-import { Role } from "@prisma/client";
 import z from "zod";
 
 const allowedTypes = ["FORGETPASSWORD", "NEWACCOUNT"] as const;
@@ -49,8 +48,3 @@ export const PasswordResetSchema = z.object({
 	phoneNumber: z.string().min(9),
 	newPassword: z.string().min(6),
 });
-
-export interface payloadSchema {
-	userRole: Role;
-	userId: string;
-}
