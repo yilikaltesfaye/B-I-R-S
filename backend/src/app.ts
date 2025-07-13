@@ -5,14 +5,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import AuthRoutes from "./modules/auth/auth.route";
+import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
 
-app.use(cors({ origin: "https:localhost:3000", credentials: true }));
+// app.use(cors({ origin: "https:localhost:3000", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", AuthRoutes);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

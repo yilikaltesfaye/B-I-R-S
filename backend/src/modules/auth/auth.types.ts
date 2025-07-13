@@ -25,6 +25,7 @@ export interface RegisterInterface {
 	password: string;
 	address: Address;
 	appContext: "user" | "authority" | "admin";
+	guestToken: string;
 	email?: string;
 }
 
@@ -37,6 +38,7 @@ export interface regenerateRefreshTokenInterface {
 export interface ResetPasswordInterface {
 	phone: string;
 	newPassword: string;
+	guestToken: string;
 }
 
 export interface VerifyOtpInterface {

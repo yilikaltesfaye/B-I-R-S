@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { requestRateLimiter } from "../../utils/rateLimiter";
+import { requestRateLimiter } from "../../middlewares/rateLimiter";
 import { requireAdmin, requireAuth } from "./auth.middleware";
 import { getAllUsers, getUserData } from "../user/user.depricated";
 import {
 	loginController,
 	logoutController,
 	regenerateAccessTokenController,
-	regenerateRefreshTokenController,
 	registerController,
 	requestOtpController,
 	resetPasswordController,
@@ -32,8 +31,6 @@ router.post("/logout", requireAuth, logoutController); // logout route
 router.post("/resetpassword", resetPasswordController); // reset password route
 
 router.post("/refresh-access-token", regenerateAccessTokenController); // access token regenerate route
-
-router.post("/regenerate-refresh-token", regenerateRefreshTokenController); // refresh token regenerate route
 
 router.get("/users", requireAuth, requireAdmin, getAllUsers); //  get all users for admin
 router.get("/user", requireAuth, getUserData); //  get user
