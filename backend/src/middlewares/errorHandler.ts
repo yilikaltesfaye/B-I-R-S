@@ -18,9 +18,11 @@ export function errorHandler(
 			errors: err.errors,
 		});
 	}
+	const statusCode = err instanceof HttpError ? err.status : 500;
 
-	res.status(err instanceof HttpError ? err.status : 500).json({
+	res.status(statusCode).json({
 		status: "fail",
 		message: err.message || "Internal Server Error",
+		...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
 	});
 }
