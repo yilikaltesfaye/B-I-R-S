@@ -36,6 +36,7 @@ model User {
 
   authorityStaff AuthorityStaff?
   Report         Report[]
+  Notification   Notification[]
 }
 
 model AuthorityOffice {
@@ -67,31 +68,45 @@ model Category {
 }
 
 model AuthorityStaff {
-  userId            String          @id
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position          String @default("Staff")
+  userId            String @id
   authorityOfficeId Int
-  authorityOffice   AuthorityOffice @relation(fields: [authorityOfficeId], references: [id], onDelete: Cascade)
-  position          String          @default("Staff")
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorityOffice AuthorityOffice @relation(fields: [authorityOfficeId], references: [id], onDelete: Cascade)
 }
 
 model Report {
-  id               String                                @id @default(uuid())
-  location         Unsupported("geography(Point,4326)")?
-  address          Json
-  description      String
-  photoUrls        String[]
-  status           Status                                @default(PENDING)
-  reporterConfirm  Boolean                               @default(false)
-  communityConfirm Int                                   @default(0)
-  message          String
-  submittedAt      DateTime                              @default(now())
-  updatedAt        DateTime                              @updatedAt
-  closedAt         DateTime?
-
+  id                String                                @id @default(uuid())
+  location          Unsupported("geography(Point,4326)")?
+  address           Json
+  description       String
+  photoUrls         String[]
+  status            Status                                @default(PENDING)
+  reporterConfirm   Boolean                               @default(false)
+  communityConfirm  Int                                   @default(0)
+  message           String
+  submittedAt       DateTime                              @default(now())
+  updatedAt         DateTime                              @updatedAt
+  closedAt          DateTime?
   userId            String?
-  user              User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
   authorityOfficeId Int?
-  authorityOffice   AuthorityOffice? @relation(fields: [authorityOfficeId], references: [id], onDelete: SetNull)
   categoryId        Int?
-  category          Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorityOffice AuthorityOffice? @relation(fields: [authorityOfficeId], references: [id], onDelete: SetNull)
+  category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  Notification    Notification[]
+}
+
+model Notification {
+  id       String   @id @default(uuid())
+  message  String
+  isSeen   Boolean  @default(false)
+  sentAt   DateTime @default(now())
+  userId   String
+  reportId String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
 }
