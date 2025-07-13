@@ -105,14 +105,7 @@ export const registerController = async (
 			guestToken: validated.guestToken,
 		});
 
-		if ("accessDenied" in result && result.accessDenied) {
-			return res.status(403).json({
-				status: "fail",
-				message: result.reason,
-			});
-		}
-
-		const { accessToken, refreshToken } = result;
+		const { accessToken, refreshToken, userData } = result;
 
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 		if (isMobileClient) {
@@ -122,6 +115,7 @@ export const registerController = async (
 					"Regisitration was successfull. Access Token  and Refresh token are sent in this json. The User can log in now",
 				accessToken,
 				refreshToken,
+				userData,
 			});
 		} else {
 			res.cookie("refreshToken", refreshToken, {
@@ -136,6 +130,7 @@ export const registerController = async (
 				message:
 					"Regisitration was successfull. Access Token is sent in this json and Refresh token is sent to cookie. The User can log in now",
 				accessToken,
+				userData,
 			});
 		}
 	} catch (error: any) {
@@ -159,13 +154,8 @@ export const loginController = async (
 			password: validated.password,
 			appContext: validated.appContext,
 		});
-		if ("accessDenied" in result && result.accessDenied) {
-			return res.status(403).json({
-				status: "fail",
-				message: result.reason,
-			});
-		}
-		const { accessToken, refreshToken, user } = result;
+
+		const { accessToken, refreshToken, userData } = result;
 
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 
@@ -176,6 +166,7 @@ export const loginController = async (
 					"Login operation was successfull. Access Token and Refresh token are sent in this json. The User can log in now.",
 				accessToken,
 				refreshToken,
+				userData,
 			});
 		} else {
 			res.cookie("refreshToken", refreshToken, {
@@ -190,6 +181,7 @@ export const loginController = async (
 				message:
 					"Login operation was successfull. Access Token is sent in this json and Refresh token is sent to cookie. The User can log in now.",
 				accessToken,
+				userData,
 			});
 		}
 	} catch (error: any) {
