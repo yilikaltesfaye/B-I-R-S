@@ -37,6 +37,7 @@ model User {
   authorityStaff AuthorityStaff?
   Report         Report[]
   Notification   Notification[]
+  Comment        Comment[]
 }
 
 model AuthorityOffice {
@@ -82,7 +83,7 @@ model Report {
   location          Unsupported("geography(Point,4326)")?
   address           Json
   description       String
-  photoUrls         String[]
+  photoUrls         Json?
   status            Status                                @default(PENDING)
   reporterConfirm   Boolean                               @default(false)
   communityConfirm  Int                                   @default(0)
@@ -98,6 +99,7 @@ model Report {
   authorityOffice AuthorityOffice? @relation(fields: [authorityOfficeId], references: [id], onDelete: SetNull)
   category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   Notification    Notification[]
+  Comment         Comment[]
 }
 
 model Notification {
@@ -110,4 +112,24 @@ model Notification {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Foreign keys
+  userId    String
+  reportId  String
+  replyToId String? // Optional: ID of the comment this is replying to
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  // Self-referencing relationship for replies
+  replyTo Comment?  @relation("CommentReplies", fields: [replyToId], references: [id])
+  replies Comment[] @relation("CommentReplies")
 }
