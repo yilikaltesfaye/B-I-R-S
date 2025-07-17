@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import z from "zod";
 import { standardPhone } from "../../utils/standardPhoneNumber";
 import prisma from "../../clients/prismaClient";
-import { AuthedRequest } from "../auth/auth.middleware";
+import { AuthedRequest } from "../../middlewares/auth.middleware";
 
 export const checkIfUserExistShema = z.object({
 	phoneNumber: z.string().min(9),

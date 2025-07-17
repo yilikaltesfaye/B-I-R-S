@@ -1,10 +1,11 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import cors from "cors";
+// import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
-import AuthRoutes from "./modules/auth/auth.route";
+import AuthRoutes from "./modules/auth/auth.routes";
+import ReportRoutes from "./modules/report/report.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
@@ -13,7 +14,8 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/auth", AuthRoutes);
+app.use("/auth", AuthRoutes);
+app.use(ReportRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
