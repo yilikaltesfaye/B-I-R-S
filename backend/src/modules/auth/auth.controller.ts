@@ -8,7 +8,6 @@ import {
 	RequestOtpSchema,
 	VerifyOtpSchema,
 } from "./auth.schema";
-import { checkRedis } from "../../utils/checkRedisStore";
 
 // request one time password controller for verfication registration || forgot password
 
