@@ -87,7 +87,7 @@ model Report {
   status            Status                                @default(PENDING)
   reporterConfirm   Boolean                               @default(false)
   communityConfirm  Int                                   @default(0)
-  message           String
+  message           String?
   submittedAt       DateTime                              @default(now())
   updatedAt         DateTime                              @updatedAt
   closedAt          DateTime?
