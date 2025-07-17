@@ -3,7 +3,6 @@ import { redis } from "../../clients/redisClient";
 import {
 	LoginInterface,
 	PayloadInterface,
-	regenerateRefreshTokenInterface,
 	RegisterInterface,
 	ResetPasswordInterface,
 	VerifyOtpInterface,
@@ -86,6 +85,19 @@ export const registerService = async (data: RegisterInterface) => {
 			password: hashed,
 			address: data.address,
 		},
+		include: {
+			authorityStaff: {
+				select: {
+					position: true,
+					authorityOffice: {
+						select: {
+							officeName: true,
+							id: true,
+						},
+					},
+				},
+			},
+		},
 	});
 
 	if (data.appContext === "admin" && user.role !== "ADMIN") {
@@ -125,6 +137,19 @@ export const registerService = async (data: RegisterInterface) => {
 export const loginService = async (data: LoginInterface) => {
 	const user = await prisma.user.findUnique({
 		where: { phone: data.phone },
+		include: {
+			authorityStaff: {
+				select: {
+					position: true,
+					authorityOffice: {
+						select: {
+							officeName: true,
+							id: true,
+						},
+					},
+				},
+			},
+		},
 	});
 	if (!user) throw new HttpError("Invalid Phone or Password", 401);
 	// if (!user) throw new HttpError("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
