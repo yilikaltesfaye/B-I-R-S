@@ -15,7 +15,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", AuthRoutes);
-app.use(ReportRoutes);
+app.use("/reports", ReportRoutes);
+app.use("/users", ReportRoutes);
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

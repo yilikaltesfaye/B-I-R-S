@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { requestRateLimiter } from "../../middlewares/rateLimiter";
-import { requireAdmin, requireAuth } from "../../middlewares/auth.middleware";
-import { getAllUsers, getUserData } from "../user/user.depricated";
+import { requireAuth } from "../../middlewares/auth.middleware";
 import * as Auth from "./auth.controller";
 
 const router = Router();
@@ -27,8 +26,5 @@ router.post("/logout", requireAuth, Auth.logoutController); // logout route
 router.post("/resetpassword", Auth.resetPasswordController); // reset password route
 
 router.post("/refresh-access-token", Auth.regenerateAccessTokenController); // access token regenerate route
-
-router.get("/users", requireAuth, requireAdmin, getAllUsers); //  get all users for admin
-router.get("/user", requireAuth, getUserData); //  get user
 
 export default router;

@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "../utils/token";
+import { Role } from "@prisma/client";
 
 export interface AuthedRequest extends Request {
 	userId?: string;
-	userRole?: string;
+	userRole?: Role;
 }
 
 export const requireAuth = (
@@ -21,7 +22,9 @@ export const requireAuth = (
 	try {
 		const payload = verifyAccessToken(token);
 		req.userId = payload.userId;
-		req.userRole = payload.userRole;
+		const roleFromToken = payload.userRole as Role;
+		req.userRole = roleFromToken;
+
 		next();
 	} catch (error) {
 		res
@@ -34,7 +37,7 @@ export const requireAdmin = (
 	res: Response,
 	next: NextFunction
 ): void => {
-	if (req.userRole !== "ADMIN") {
+	if (req.userRole !== Role.ADMIN) {
 		res
 			.status(403)
 			.json({ status: "fail", message: "Access denied: Admins only" });
@@ -49,7 +52,7 @@ export const requireAuthority = (
 	res: Response,
 	next: NextFunction
 ): void => {
-	if (req.userRole !== "AUTHORITY") {
+	if (req.userRole !== Role.AUTHORITY) {
 		res
 			.status(403)
 			.json({ status: "fail", message: "Access denied: Authority only" });
