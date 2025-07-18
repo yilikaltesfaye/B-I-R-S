@@ -2,7 +2,6 @@ import { NextFunction, Response, Request } from "express";
 import prisma from "../../clients/prismaClient";
 import { AuthedRequest } from "../../middlewares/auth.middleware";
 import { HttpError } from "../../middlewares/HttpError";
-import bcrypt from "bcryptjs";
 import { hashPassword } from "../../utils/hash";
 
 export const getAllUsersController = async (
