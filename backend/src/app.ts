@@ -5,7 +5,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import AuthRoutes from "./modules/auth/auth.routes";
+import UserRoutes from "./modules/user/user.routes";
+import AuthorityRoutes from "./modules/authority/authority.routes";
 import ReportRoutes from "./modules/report/report.routes";
+import CategoryRoutes from "./modules/category/category.routes";
+import CommentRoutes from "./modules/comment/conmment.routes";
+
 import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
@@ -15,8 +20,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", AuthRoutes);
+app.use("/users", UserRoutes);
+app.use("/authorities", AuthorityRoutes);
 app.use("/reports", ReportRoutes);
-app.use("/users", ReportRoutes);
+app.use("/categories", CategoryRoutes);
+app.use("/comments", CommentRoutes);
 
 app.use(errorHandler);
 
