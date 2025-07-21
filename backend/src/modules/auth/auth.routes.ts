@@ -7,7 +7,7 @@ const router = Router();
 
 router.post(
 	"/requestotp",
-	requestRateLimiter("OTP"),
+	// requestRateLimiter("OTP"),
 	Auth.requestOtpController
 ); // request password otp route for both account creation and password recovery
 
@@ -19,7 +19,7 @@ router.post(
 	Auth.registerController
 ); // register route
 
-router.post("/login", requestRateLimiter("Login"), Auth.loginController); // login route
+router.post("/login", Auth.loginController); // login route
 
 router.post("/logout", requireAuth, Auth.logoutController); // logout route
 

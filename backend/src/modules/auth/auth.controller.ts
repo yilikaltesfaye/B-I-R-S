@@ -18,7 +18,7 @@ export const requestOtpController = async (
 ) => {
 	try {
 		const validated = RequestOtpSchema.parse(req.body);
-		const phone = standardPhone(validated.phoneNumber);
+		const phone = standardPhone(validated.phone);
 		const type = validated.type;
 
 		if (type === "FORGETPASSWORD") {
@@ -63,7 +63,7 @@ export const verifyOtpController = async (
 	try {
 		const validated = VerifyOtpSchema.parse(req.body);
 
-		const phone = standardPhone(validated.phoneNumber);
+		const phone = standardPhone(validated.phone);
 
 		const { guestToken, expirySeconds } = await AuthService.verifyOtpService({
 			phone,
@@ -92,7 +92,7 @@ export const registerController = async (
 ) => {
 	try {
 		const validated = RegisterSchema.parse(req.body);
-		const phone = standardPhone(validated.phoneNumber);
+		const phone = standardPhone(validated.phone);
 
 		const result = await AuthService.registerService({
 			name: validated.fullName,

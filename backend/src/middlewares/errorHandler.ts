@@ -13,7 +13,7 @@ export function errorHandler(
 
 	if (err instanceof ZodError) {
 		return res.status(400).json({
-			title: "fail",
+			title: "Fail",
 			message: "Zod Validation error",
 			errors: err.errors,
 		});
@@ -21,7 +21,7 @@ export function errorHandler(
 	const statusCode = err instanceof HttpError ? err.status : 500;
 
 	res.status(statusCode).json({
-		title: "fail",
+		title: "Fail",
 		message: err.message || "Internal Server Error",
 		errorCode: statusCode,
 		...(process.env.NODE_ENV !== "production" && { stack: err.stack }),

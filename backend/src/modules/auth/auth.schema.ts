@@ -4,7 +4,7 @@ const allowedTypes = ["FORGETPASSWORD", "NEWACCOUNT"] as const;
 const appType = ["user", "authority", "admin"] as const;
 
 export const RequestOtpSchema = z.object({
-	phoneNumber: z.string().min(9),
+	phone: z.string().min(9),
 	type: z
 		.string()
 		.transform((val) => val.toUpperCase())
@@ -12,7 +12,7 @@ export const RequestOtpSchema = z.object({
 });
 
 export const VerifyOtpSchema = z.object({
-	phoneNumber: z.string().min(9),
+	phone: z.string().min(9),
 	code: z.string().length(6),
 	verificationId: z.string().min(2),
 });
@@ -29,7 +29,7 @@ export const AddressSchema = z
 
 export const RegisterSchema = z.object({
 	guestToken: z.string().length(6),
-	phoneNumber: z.string().min(9),
+	phone: z.string().min(9),
 	fullName: z.string().min(2),
 	password: z.string().min(6),
 	address: AddressSchema,
