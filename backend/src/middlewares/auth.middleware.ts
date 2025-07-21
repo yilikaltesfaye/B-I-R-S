@@ -15,7 +15,7 @@ export const requireAuth = (
 	const authHeader = req.headers["authorization"];
 	const token = authHeader?.split(" ")[1];
 	if (!token) {
-		res.status(401).json({ status: "fail", message: "Access token required" });
+		res.status(401).json({ title: "fail", message: "Access token required" });
 		return;
 	}
 
@@ -29,7 +29,7 @@ export const requireAuth = (
 	} catch (error) {
 		res
 			.status(401)
-			.json({ status: "fail", message: "Invalid or expired Token" });
+			.json({ title: "fail", message: "Invalid or expired Token" });
 	}
 };
 export const requireAdmin = (
@@ -40,7 +40,7 @@ export const requireAdmin = (
 	if (req.userRole !== Role.ADMIN) {
 		res
 			.status(403)
-			.json({ status: "fail", message: "Access denied: Admins only" });
+			.json({ title: "fail", message: "Access denied: Admins only" });
 		return;
 	}
 
@@ -55,7 +55,7 @@ export const requireAuthority = (
 	if (req.userRole !== Role.AUTHORITY) {
 		res
 			.status(403)
-			.json({ status: "fail", message: "Access denied: Authority only" });
+			.json({ title: "fail", message: "Access denied: Authority only" });
 		return;
 	}
 

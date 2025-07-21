@@ -19,7 +19,7 @@ export const createReportController = async (
 
 		await ReportService.createReportService(validated, userId);
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Report Successfully Submitted",
 		});
 	} catch (error: any) {
@@ -35,7 +35,7 @@ export const getAllReportsController = async (
 	try {
 		const reports = await ReportService.getAllReportsService();
 		res.json({
-			status: "success",
+			title: "success",
 			message: "All reports for Admin Only",
 			data: { reports },
 		});
@@ -84,7 +84,7 @@ export const getAuthorityReportsController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Reports for your authority office",
 			data: reports,
 		});
@@ -102,7 +102,7 @@ export const getReportByIdController = async (
 		const reportId = req.params.id;
 		const report = await ReportService.getReportByIdService(reportId);
 		res.json({
-			status: "success",
+			title: "success",
 			message: "report by id",
 			data: { report },
 		});
@@ -170,7 +170,7 @@ export const updateReportStatusController = async (
 		});
 
 		res.status(200).json({
-			status: "success",
+			title: "success",
 			message: "Report status updated",
 			data: updated,
 		});
@@ -226,7 +226,7 @@ export const getReportsByAddressController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Reports fetched",
 			data: { reports },
 			pagination: {

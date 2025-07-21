@@ -38,7 +38,7 @@ export const RegisterSchema = z.object({
 });
 
 export const LoginSchema = z.object({
-	phoneNumber: z.string().min(9),
+	phone: z.string().min(9),
 	password: z.string().min(6),
 	appContext: z.string().pipe(z.enum(appType)),
 });

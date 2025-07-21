@@ -51,7 +51,7 @@ export const createAuthorityOfficeController = async (
 		});
 
 		res.status(201).json({
-			status: "success",
+			title: "success",
 			message: "Authority office created successfully",
 			data: newOffice,
 		});
@@ -97,7 +97,7 @@ export const getAllAuthorityOfficesController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Authority offices fetched successfully",
 			data: offices,
 		});
@@ -135,7 +135,7 @@ export const getAuthorityOfficeByIdController = async (
 
 		// Admins get instant access
 		if (userRole === "ADMIN") {
-			res.json({ status: "success", data: { office } });
+			res.json({ title: "success", data: { office } });
 			return;
 		}
 
@@ -149,7 +149,7 @@ export const getAuthorityOfficeByIdController = async (
 		}
 
 		// Return office details for authorized staff
-		res.json({ status: "success", data: { office } });
+		res.json({ title: "success", data: { office } });
 	} catch (error) {
 		next(error);
 	}
@@ -181,7 +181,7 @@ export const updateAuthorityOfficeController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Authority office updated successfully",
 			data: updatedOffice,
 		});
@@ -213,7 +213,7 @@ export const deleteAuthorityOfficeController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Authority office deleted successfully",
 		});
 	} catch (error) {
@@ -254,7 +254,7 @@ export const assignCategoriesToOfficeController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Categories assigned to authority office successfully",
 		});
 	} catch (error) {
@@ -298,7 +298,7 @@ export const addAuthorityStaffController = async (
 		});
 
 		res.status(201).json({
-			status: "success",
+			title: "success",
 			message: "Authority staff added successfully",
 			data: staff,
 		});
@@ -341,7 +341,7 @@ export const getAuthorityStaffController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: `Staff members for office ${officeId}`,
 			data: staff,
 		});
@@ -373,7 +373,7 @@ export const removeAuthorityStaffController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: `Authority staff with userId ${userId} removed successfully`,
 		});
 	} catch (error) {

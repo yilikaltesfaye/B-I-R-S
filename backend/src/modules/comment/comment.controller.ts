@@ -40,7 +40,7 @@ export const createCommentController = async (
 		});
 
 		res.status(201).json({
-			status: "success",
+			title: "success",
 			message: "Comment created",
 			data: newComment,
 		});
@@ -77,7 +77,7 @@ export const getCommentsByReportController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			data: comments,
 		});
 	} catch (error) {
@@ -117,7 +117,7 @@ export const deleteCommentController = async (
 
 		await prisma.comment.delete({ where: { id: commentId } });
 
-		res.json({ status: "success", message: "Comment deleted" });
+		res.json({ title: "success", message: "Comment deleted" });
 	} catch (error) {
 		next(error);
 	}

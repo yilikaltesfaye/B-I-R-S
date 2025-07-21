@@ -24,7 +24,7 @@ export const getAllUsersController = async (
 			},
 		});
 		res.json({
-			status: "success",
+			title: "success",
 			message: "protected route only for users",
 			data: { users },
 		});
@@ -60,7 +60,7 @@ export const getUserByIdController = async (
 		}
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "User data retrieved",
 			data: { user },
 		});
@@ -127,7 +127,7 @@ export const updateUserController = async (
 		}
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "User updated successfully",
 			data: updatedUser,
 		});
@@ -163,7 +163,7 @@ export const deleteUserController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "User deleted successfully",
 		});
 	} catch (error) {

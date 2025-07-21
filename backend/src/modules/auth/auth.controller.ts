@@ -25,7 +25,7 @@ export const requestOtpController = async (
 			const { verificationId, expiresIn, code } =
 				await AuthService.forgetPasswordOtpService(phone);
 			res.json({
-				status: "success",
+				title: "success",
 				message: "OTP sent for forget password operation",
 				verificationId,
 				expiresIn,
@@ -36,7 +36,7 @@ export const requestOtpController = async (
 			const { verificationId, expiresIn, code } =
 				await AuthService.registerOtpService(phone);
 			res.json({
-				status: "success",
+				title: "success",
 				message: "OTP sent for new account registeration",
 				verificationId,
 				expiresIn,
@@ -72,7 +72,7 @@ export const verifyOtpController = async (
 		});
 		const expiryMin = expirySeconds / 60;
 		res.json({
-			status: "success",
+			title: "success",
 			message:
 				"OTP verified and token provided for registeration or reset password operation",
 			guestToken,
@@ -109,7 +109,7 @@ export const registerController = async (
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 		if (isMobileClient) {
 			res.json({
-				status: "success",
+				title: "success",
 				message:
 					"Regisitration was successfull. Access Token  and Refresh token are sent in this json. The User can log in now",
 				accessToken,
@@ -125,7 +125,7 @@ export const registerController = async (
 			});
 
 			res.json({
-				status: "success",
+				title: "success",
 				message:
 					"Regisitration was successfull. Access Token is sent in this json and Refresh token is sent to cookie. The User can log in now",
 				accessToken,
@@ -146,7 +146,7 @@ export const loginController = async (
 ) => {
 	try {
 		const validated = LoginSchema.parse(req.body);
-		const phone = standardPhone(validated.phoneNumber);
+		const phone = standardPhone(validated.phone);
 
 		const result = await AuthService.loginService({
 			phone,
@@ -160,7 +160,7 @@ export const loginController = async (
 
 		if (isMobileClient) {
 			res.json({
-				status: "success",
+				title: "success",
 				message:
 					"Login operation was successfull. Access Token and Refresh token are sent in this json. The User can log in now.",
 				accessToken,
@@ -176,7 +176,7 @@ export const loginController = async (
 			});
 
 			res.json({
-				status: "success",
+				title: "success",
 				message:
 					"Login operation was successfull. Access Token is sent in this json and Refresh token is sent to cookie. The User can log in now.",
 				accessToken,
@@ -202,12 +202,12 @@ export const logoutController = async (
 			sameSite: "lax",
 		});
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Logout operation was successfull",
 		});
 	} catch (error: any) {
 		res.status(400).json({
-			status: "fail",
+			title: "fail",
 			message: "an error has occured",
 			error: error.message,
 		});
@@ -231,7 +231,7 @@ export const resetPasswordController = async (
 			guestToken: validated.guestToken,
 		});
 		res.json({
-			status: "success",
+			title: "success",
 			message: "New Password has been reset successfully",
 		});
 	} catch (error: any) {
@@ -260,7 +260,7 @@ export const regenerateAccessTokenController = async (
 
 		if (isMobileClient) {
 			res.json({
-				status: "success",
+				title: "success",
 				message:
 					"Access Token Regeneration was successfull. Access Token is sent in json and the old Refresh token is sent to cookie. The User now have access",
 				accessToken,
@@ -276,7 +276,7 @@ export const regenerateAccessTokenController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message:
 				"Access Token Regeneration. Access Token is sent in json and the old Refresh token is sent to cookie. The User now have access",
 			accessToken,

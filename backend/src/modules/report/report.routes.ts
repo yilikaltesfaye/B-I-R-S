@@ -31,7 +31,7 @@ router.put("/:id/status", requireAuth, (req, res, next) => {
 	if (typedReq.userRole === "AUTHORITY" || typedReq.userRole === "ADMIN") {
 		return Report.updateReportStatusController(typedReq, res, next);
 	}
-	res.status(403).json({ status: "fail", message: "Access denied" });
+	res.status(403).json({ title: "fail", message: "Access denied" });
 }); // Update status to fixed
 
 export default router;

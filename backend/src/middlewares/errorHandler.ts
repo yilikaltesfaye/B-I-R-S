@@ -9,11 +9,11 @@ export function errorHandler(
 	res: Response,
 	next: NextFunction
 ) {
-	console.error("Error:", err);
+	// console.error("Error:", err);
 
 	if (err instanceof ZodError) {
 		return res.status(400).json({
-			status: "fail",
+			title: "fail",
 			message: "Zod Validation error",
 			errors: err.errors,
 		});
@@ -21,8 +21,9 @@ export function errorHandler(
 	const statusCode = err instanceof HttpError ? err.status : 500;
 
 	res.status(statusCode).json({
-		status: "fail",
+		title: "fail",
 		message: err.message || "Internal Server Error",
+		errorCode: statusCode,
 		...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
 	});
 }

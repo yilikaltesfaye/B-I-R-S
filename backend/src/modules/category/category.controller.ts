@@ -25,7 +25,7 @@ export const createCategoryController = async (
 		});
 
 		res.status(201).json({
-			status: "success",
+			title: "success",
 			message: "Category created successfully",
 			data: category,
 		});
@@ -56,7 +56,7 @@ export const getAllCategoriesController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Categories fetched successfully",
 			data: { categories },
 		});
@@ -98,7 +98,7 @@ export const getCategoryByIdController = async (
 		}
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Category fetched successfully",
 			data: category,
 		});
@@ -138,7 +138,7 @@ export const updateCategoryController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Category updated successfully",
 			data: updatedCategory,
 		});
@@ -177,7 +177,7 @@ export const deleteCategoryController = async (
 		});
 
 		res.json({
-			status: "success",
+			title: "success",
 			message: "Category deleted successfully",
 		});
 	} catch (error) {

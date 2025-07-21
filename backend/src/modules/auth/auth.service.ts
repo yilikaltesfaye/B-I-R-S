@@ -151,8 +151,8 @@ export const loginService = async (data: LoginInterface) => {
 			},
 		},
 	});
-	if (!user) throw new HttpError("Invalid Phone or Password", 401);
-	// if (!user) throw new HttpError("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
+	// if (!user) throw new HttpError("Invalid Phone or Password", 401);
+	if (!user) throw new HttpError("በዚስልክ ቁጥሩ ተጠቃሚ የለም", 401);
 
 	const valid = await comparePasswords(data.password, user.password);
 	if (!valid) throw new HttpError("Invalid Phone or Password", 401);
