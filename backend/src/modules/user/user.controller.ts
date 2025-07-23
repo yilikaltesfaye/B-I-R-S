@@ -10,7 +10,13 @@ export const getAllUsersController = async (
 	next: NextFunction
 ) => {
 	try {
+		const page = parseInt(req.query.page as string) || 1;
+		const limit = parseInt(req.query.limit as string) || 10;
+		const skip = (page - 1) * limit;
+		const total = await prisma.user.count();
 		const users = await prisma.user.findMany({
+			skip,
+			take: limit,
 			select: {
 				id: true,
 				name: true,
@@ -24,9 +30,13 @@ export const getAllUsersController = async (
 			},
 		});
 		res.json({
-			title: "success",
+			status: "success",
 			message: "protected route only for users",
-			data: { users },
+			data: users,
+			total,
+			page,
+			limit,
+			totalPages: Math.ceil(total / limit),
 		});
 	} catch (error: any) {
 		next(error);
@@ -58,11 +68,12 @@ export const getUserByIdController = async (
 		if (!user) {
 			throw new HttpError("User not found", 404);
 		}
+		const { password, refreshToken, refreshTokenExp, ...userData } = user;
 
 		res.json({
-			title: "success",
+			status: "success",
 			message: "User data retrieved",
-			data: { user },
+			data: userData,
 		});
 	} catch (error) {
 		next(error);
@@ -127,7 +138,7 @@ export const updateUserController = async (
 		}
 
 		res.json({
-			title: "success",
+			status: "success",
 			message: "User updated successfully",
 			data: updatedUser,
 		});
@@ -163,7 +174,7 @@ export const deleteUserController = async (
 		});
 
 		res.json({
-			title: "success",
+			status: "success",
 			message: "User deleted successfully",
 		});
 	} catch (error) {
