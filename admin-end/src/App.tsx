@@ -1,11 +1,29 @@
-import { LoginForm } from "@/components/login-form";
+import { BrowserRouter as Router } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from "@/components/ui/sonner";
+import { AppRoutes } from "./routes/AppRoutes";
+
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			retry: 1,
+			refetchOnWindowFocus: false,
+		},
+	},
+});
 
 export default function App() {
 	return (
-		<div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10">
-			<div className="w-full max-w-sm">
-				<LoginForm />
-			</div>
-		</div>
+		<QueryClientProvider client={queryClient}>
+			<AuthProvider>
+				<Router>
+					<AppRoutes />
+					<Toaster />
+				</Router>
+			</AuthProvider>
+			<ReactQueryDevtools initialIsOpen={false} />
+		</QueryClientProvider>
 	);
 }
