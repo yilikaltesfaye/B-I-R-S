@@ -28,7 +28,7 @@ export const AddressSchema = z
 	.passthrough();
 
 export const RegisterSchema = z.object({
-	guestToken: z.string().length(6),
+	// guestToken: z.string().length(6),
 	phone: z.string().min(9),
 	fullName: z.string().min(2),
 	password: z.string().min(6),

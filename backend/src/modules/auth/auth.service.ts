@@ -69,7 +69,7 @@ export const registerService = async (data: RegisterInterface) => {
 	const exisiting = await prisma.user.findUnique({
 		where: { phone: data.phone },
 	});
-	await checkRedis(data.phone, data.guestToken);
+	// await checkRedis(data.phone, data.guestToken);
 
 	if (exisiting) {
 		throw new HttpError("Phone number is already in use", 409);

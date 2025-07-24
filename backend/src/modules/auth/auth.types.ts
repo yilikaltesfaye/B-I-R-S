@@ -25,7 +25,7 @@ export interface RegisterInterface {
 	password: string;
 	address: Address;
 	appContext: "user" | "authority" | "admin";
-	guestToken: string;
+	// guestToken: string;
 	email?: string;
 }
 

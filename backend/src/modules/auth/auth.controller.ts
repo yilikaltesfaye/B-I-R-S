@@ -22,25 +22,23 @@ export const requestOtpController = async (
 		const type = validated.type;
 
 		if (type === "FORGETPASSWORD") {
-			const { verificationId, expiresIn, code } =
+			const { verificationId, expiresIn } =
 				await AuthService.forgetPasswordOtpService(phone);
 			res.json({
 				title: "success",
 				message: "OTP sent for forget password operation",
 				verificationId,
 				expiresIn,
-				code,
 				type,
 			});
 		} else if (type === "NEWACCOUNT") {
-			const { verificationId, expiresIn, code } =
+			const { verificationId, expiresIn } =
 				await AuthService.registerOtpService(phone);
 			res.json({
 				title: "success",
 				message: "OTP sent for new account registeration",
 				verificationId,
 				expiresIn,
-				code,
 				type,
 			});
 		} else {
@@ -101,7 +99,7 @@ export const registerController = async (
 			address: validated.address,
 			appContext: validated.appContext,
 			email: validated.email,
-			guestToken: validated.guestToken,
+			// guestToken: validated.guestToken,
 		});
 
 		const { accessToken, refreshToken, userData } = result;
