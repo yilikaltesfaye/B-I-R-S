@@ -77,7 +77,6 @@ export const getAllAuthorityOfficesController = async (
 				isActive: true,
 				createdAt: true,
 				updatedAt: true,
-				parentOfficeId: true,
 				parentOffice: {
 					select: {
 						id: true,
@@ -123,9 +122,18 @@ export const getAuthorityOfficeByIdController = async (
 		const office = await prisma.authorityOffice.findUnique({
 			where: { id: officeId },
 			include: {
-				authorityStaff: {
-					select: { userId: true },
-				},
+				// authorityStaff: {
+				// 	select: {
+				// 		position: true,
+				// 		user: {
+				// 			select: {
+				// 				name: true,
+				// 				id: true,
+				// 			},
+				// 		},
+				// 	},
+				// },
+				categories: true,
 			},
 		});
 
@@ -134,22 +142,22 @@ export const getAuthorityOfficeByIdController = async (
 		}
 
 		// Admins get instant access
-		if (userRole === "ADMIN") {
-			res.json({ title: "success", data: { office } });
-			return;
-		}
+		// if (userRole === "ADMIN") {
+		// 	res.json({ title: "success", data: office });
+		// 	return;
+		// }
 
 		// Check if user is staff of this office
-		const isStaff = office.authorityStaff.some(
-			(staff) => staff.userId === userId
-		);
+		// const isStaff = office.authorityStaff.some(
+		// 	(staff) => staff.user.id === userId
+		// );
 
-		if (!isStaff) {
-			throw new HttpError("Access denied", 403);
-		}
+		// if (!isStaff) {
+		// 	throw new HttpError("Access denied", 403);
+		// }
 
 		// Return office details for authorized staff
-		res.json({ title: "success", data: { office } });
+		res.json({ title: "success", data: office });
 	} catch (error) {
 		next(error);
 	}
@@ -178,6 +186,9 @@ export const updateAuthorityOfficeController = async (
 		const updatedOffice = await prisma.authorityOffice.update({
 			where: { id: officeId },
 			data: updateData,
+			include: {
+				categories: true,
+			},
 		});
 
 		res.json({
@@ -255,7 +266,7 @@ export const assignCategoriesToOfficeController = async (
 
 		res.json({
 			title: "success",
-			message: "Categories assigned to authority office successfully",
+			message: "Categorie/s assigned to authority office successfully",
 		});
 	} catch (error) {
 		next(error);
@@ -271,12 +282,17 @@ export const addAuthorityStaffController = async (
 ) => {
 	try {
 		const officeId = Number(req.params.officeId);
-		const { userId, role, otherDetails } = req.body; // adjust fields as needed
+		const { userId, position } = req.body; // adjust fields as needed
 
-		if (!userId || !role) {
-			throw new HttpError("userId and role are required", 400);
+		if (!userId || !position) {
+			throw new HttpError("userId and position are required", 400);
 		}
-
+		const user = await prisma.user.findUnique({
+			where: { id: userId },
+		});
+		if (!user) {
+			throw new HttpError("user with that id not found", 404);
+		}
 		// Verify authority office exists
 		const office = await prisma.authorityOffice.findUnique({
 			where: { id: officeId },
@@ -285,17 +301,55 @@ export const addAuthorityStaffController = async (
 			throw new HttpError("Authority office not found", 404);
 		}
 
-		// Optionally: check if user exists, or other validations
-
 		// Create AuthorityStaff entry linking user and office
-		const staff = await prisma.authorityStaff.create({
+		await prisma.user.update({
+			where: {
+				id: userId,
+			},
 			data: {
-				userId,
-				role,
-				authorityOfficeId: officeId,
-				...otherDetails, // any other fields you want to store
+				role: "AUTHORITY",
 			},
 		});
+
+		const staff = await prisma.authorityStaff.create({
+			data: {
+				authorityOfficeId: officeId,
+				position,
+				userId: user.id,
+			},
+			include: {
+				user: {
+					select: {
+						name: true,
+						phone: true,
+						address: true,
+						role: true,
+					},
+				},
+				authorityOffice: {
+					select: {
+						officeName: true,
+						id: true,
+						phone: true,
+						address: true,
+					},
+				},
+			},
+		});
+		if (!staff) {
+			await prisma.user.update({
+				where: {
+					id: userId,
+				},
+				data: {
+					role: "USER",
+				},
+			});
+			res.status(400).json({
+				title: "fail",
+				message: "failed to make user an authority with the selected office",
+			});
+		}
 
 		res.status(201).json({
 			title: "success",
@@ -328,12 +382,14 @@ export const getAuthorityStaffController = async (
 			where: { authorityOfficeId: officeId },
 			// optionally select fields you want to expose
 			select: {
-				userId: true,
 				position: true,
-				authorityOffice: {
+				authorityOfficeId: true,
+				user: {
 					select: {
-						officeName: true,
-						id: true,
+						name: true,
+						phone: true,
+						address: true,
+						role: true,
 					},
 				},
 				// add any other relevant fields here
@@ -370,6 +426,10 @@ export const removeAuthorityStaffController = async (
 		// Delete the staff record
 		await prisma.authorityStaff.delete({
 			where: { userId: userId },
+		});
+		await prisma.user.update({
+			where: { id: userId },
+			data: { role: "USER" },
 		});
 
 		res.json({
