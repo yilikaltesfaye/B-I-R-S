@@ -57,6 +57,55 @@ export const getAllReportsService = async () => {
 
 	return reports;
 };
+
+export const getReportsByCategoryService = async (categoryId: number) => {
+	const category = await prisma.category.findUnique({
+		where: {
+			id: categoryId,
+		},
+	});
+	if (!category) throw new HttpError("category not found", 404);
+	const reports = await prisma.report.findMany({
+		where: {
+			categoryId: categoryId,
+		},
+		select: {
+			id: true,
+			description: true,
+			status: true,
+			submittedAt: true,
+			address: true,
+			updatedAt: true,
+			category: {
+				select: {
+					name: true,
+				},
+			},
+			authorityOffice: {
+				select: {
+					officeName: true,
+					address: true,
+					iconUrl: true,
+				},
+			},
+			user: {
+				select: {
+					name: true,
+					id: true,
+				},
+			},
+		},
+	});
+
+	if (!reports)
+		throw new HttpError(
+			`Report with category ${category?.name} not found`,
+			404
+		);
+
+	return reports;
+};
+
 export const getReportByIdService = async (reportId: string) => {
 	const report = await prisma.report.findUnique({
 		where: {

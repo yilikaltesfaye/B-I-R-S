@@ -20,6 +20,7 @@ router.get(
 	requireAuthority,
 	Report.getAuthorityReportsController
 ); // get all reports
+router.get("/:categoryId", requireAuth, Report.getReportsByCategoryController); // get all reports
 
 router.get("/filter", requireAuth, Report.getReportsByAddressController);
 

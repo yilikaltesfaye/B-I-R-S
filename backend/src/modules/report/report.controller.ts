@@ -37,7 +37,7 @@ export const getAllReportsController = async (
 		res.json({
 			title: "success",
 			message: "All reports for Admin Only",
-			data: { reports },
+			data: reports,
 		});
 	} catch (error: any) {
 		next(error);
@@ -93,6 +93,24 @@ export const getAuthorityReportsController = async (
 	}
 };
 
+export const getReportsByCategoryController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const categoryId = Number(req.params.categoryId);
+		const reports = await ReportService.getReportsByCategoryService(categoryId);
+		res.json({
+			title: "success",
+			message: "reports by category id",
+			data: reports,
+		});
+	} catch (error: any) {
+		next(error);
+	}
+};
+
 export const getReportByIdController = async (
 	req: Request,
 	res: Response,
@@ -104,7 +122,7 @@ export const getReportByIdController = async (
 		res.json({
 			title: "success",
 			message: "report by id",
-			data: { report },
+			data: report,
 		});
 	} catch (error: any) {
 		next(error);
@@ -228,7 +246,7 @@ export const getReportsByAddressController = async (
 		res.json({
 			title: "success",
 			message: "Reports fetched",
-			data: { reports },
+			data: reports,
 			pagination: {
 				skip: skipNumber,
 				take: takeNumber,
