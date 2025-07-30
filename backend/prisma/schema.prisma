@@ -26,6 +26,7 @@ model User {
   email           String?   @unique
   phone           String    @unique
   password        String
+  avatarUrl       String?
   role            Role      @default(USER)
   address         Json
   isActive        Boolean   @default(true)
@@ -46,7 +47,7 @@ model AuthorityOffice {
   email          String
   phone          String            @unique
   address        Json
-  iconUrl        String
+  iconUrl        String?
   isActive       Boolean           @default(true)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
@@ -60,10 +61,10 @@ model AuthorityOffice {
 }
 
 model Category {
-  id          Int    @id @default(autoincrement())
-  name        String @unique
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
   description String
-  IconUrl     String
+  IconUrl     String?
 
   authorityOffices AuthorityOffice[]
   Report           Report[]
