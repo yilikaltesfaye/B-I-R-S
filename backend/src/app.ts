@@ -9,7 +9,7 @@ import UserRoutes from "./modules/user/user.routes";
 import AuthorityRoutes from "./modules/authority/authority.routes";
 import ReportRoutes from "./modules/report/report.routes";
 import CategoryRoutes from "./modules/category/category.routes";
-import CommentRoutes from "./modules/comment/conmment.routes";
+import CommentRoutes from "./modules/comment/comment.routes";
 
 import { errorHandler } from "./middlewares/errorHandler";
 
