@@ -7,6 +7,7 @@ import type {
 } from "../../types";
 import { queryClient, setAccessToken } from "../client";
 import { authApi } from "./api";
+import { QUERY_KEYS } from "../constants";
 
 export const useRequestOtp = () =>
 	useMutation({
@@ -26,7 +27,7 @@ export const useRegister = () =>
 			authApi.register(payload).then((res) => res.data),
 
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["userFull"] });
+			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.FULL });
 		},
 	});
 
@@ -36,7 +37,7 @@ export const useLogin = () =>
 			authApi.login(payload).then((res) => res.data),
 		onSuccess: (data) => {
 			setAccessToken(data.accessToken);
-			queryClient.invalidateQueries({ queryKey: ["userFull"] });
+			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.FULL });
 		},
 	});
 
@@ -45,6 +46,6 @@ export const useLogout = () =>
 		mutationFn: () => authApi.logout().then((res) => res.data),
 		onSuccess: () => {
 			setAccessToken(null);
-			queryClient.removeQueries({ queryKey: ["userFull"] });
+			queryClient.removeQueries({ queryKey: QUERY_KEYS.USER.FULL });
 		},
 	});

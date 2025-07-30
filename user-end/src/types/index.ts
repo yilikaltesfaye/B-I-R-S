@@ -3,12 +3,18 @@ export * from "./payload/users.payload";
 
 import type { Address } from "./payload/users.payload";
 
+export enum Role {
+	"USER",
+	"ADMIN",
+	"AUTHORITY",
+}
+
 export interface User {
 	id: string;
 	phone: string;
 	email?: string;
 	name: string;
-	role: string;
+	role: Role;
 	address: Address;
 	isActive: boolean;
 	updatedAt: string;
