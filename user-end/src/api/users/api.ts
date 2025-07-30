@@ -1,4 +1,4 @@
-import type { User, UserUpdatePayload } from "../../types";
+import type { User, UserUpdatePayload } from "@/types";
 import { apiClient } from "../client";
 
 export const userApi = {

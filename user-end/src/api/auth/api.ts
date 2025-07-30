@@ -4,7 +4,7 @@ import type {
 	RegisterPayload,
 	User,
 	LoginPayload,
-} from "../../types";
+} from "@/types";
 import { apiClient } from "../client";
 
 export const authApi = {
