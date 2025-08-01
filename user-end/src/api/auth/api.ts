@@ -4,6 +4,7 @@ import type {
 	RegisterPayload,
 	User,
 	LoginPayload,
+	ResetPasswordPayload,
 } from "@/types";
 import { apiClient } from "../client";
 
@@ -28,4 +29,6 @@ export const authApi = {
 	logout: () => apiClient.post("/auth/logout"),
 	refreshAccessToken: () =>
 		apiClient.post<{ accessToken: string }>("/auth/refresh-access-token"),
+	resetPassword: (payload: ResetPasswordPayload) =>
+		apiClient.post("/resetpassword", payload), // not done yet
 };
