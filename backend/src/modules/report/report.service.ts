@@ -17,6 +17,32 @@ export const createReportService = async (
 			description: data.description,
 			address: data.address,
 		},
+		select: {
+			id: true,
+			description: true,
+			status: true,
+			submittedAt: true,
+			address: true,
+			updatedAt: true,
+			category: {
+				select: {
+					name: true,
+				},
+			},
+			authorityOffice: {
+				select: {
+					officeName: true,
+					address: true,
+					iconUrl: true,
+				},
+			},
+			user: {
+				select: {
+					name: true,
+					id: true,
+				},
+			},
+		},
 	});
 
 	return report;
@@ -160,6 +186,26 @@ export const updateReportStatusService = async (
 		},
 		data: {
 			status: status,
+		},
+		include: {
+			category: {
+				select: {
+					name: true,
+				},
+			},
+			authorityOffice: {
+				select: {
+					officeName: true,
+					address: true,
+					iconUrl: true,
+				},
+			},
+			user: {
+				select: {
+					name: true,
+					id: true,
+				},
+			},
 		},
 	});
 

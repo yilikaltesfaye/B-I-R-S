@@ -22,9 +22,9 @@ router.get(
 ); // get all reports
 router.get("/:categoryId", requireAuth, Report.getReportsByCategoryController); // get all reports
 
-router.get("/filter", requireAuth, Report.getReportsByAddressController);
+router.get("/filter", requireAuth, Report.getReportsByAddressController); // too complicated for me pause on this for now
 
-router.get("/:id", requireAuth, Report.getReportByIdController); // register route
+router.get("/:id", requireAuth, Report.getReportByIdController); // get report by id route
 
 router.put("/:id/status", requireAuth, (req, res, next) => {
 	const typedReq = req as AuthedRequest;

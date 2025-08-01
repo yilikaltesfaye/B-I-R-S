@@ -168,7 +168,7 @@ export const updateReportStatusController = async (
 			const isAssigned = await prisma.authorityStaff.findFirst({
 				where: {
 					userId: req.userId,
-					authorityOfficeId: authorityOfficeId, // Safe now
+					authorityOfficeId: authorityOfficeId,
 				},
 			});
 

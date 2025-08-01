@@ -37,6 +37,14 @@ export const createCommentController = async (
 				reportId,
 				replyToId: replyToId || null,
 			},
+			include: {
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+			},
 		});
 
 		res.status(201).json({
@@ -108,7 +116,8 @@ export const deleteCommentController = async (
 			throw new HttpError("Comment not found", 404);
 		}
 
-		if (comment.userId !== userId) {
+		if (comment.userId !== userId || req.userRole !== "ADMIN") {
+			// to check later
 			throw new HttpError(
 				"Access denied: You can only delete your own comments",
 				403

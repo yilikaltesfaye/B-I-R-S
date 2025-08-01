@@ -10,7 +10,7 @@ export const createCategoryController = async (
 	try {
 		const { name, description, IconUrl } = req.body;
 
-		if (!name || !description || !IconUrl) {
+		if (!name || !description ) {
 			throw new HttpError("Missing required fields", 400);
 		}
 
@@ -58,7 +58,7 @@ export const getAllCategoriesController = async (
 		res.json({
 			title: "success",
 			message: "Categories fetched successfully",
-			data: { categories },
+			data: categories ,
 		});
 	} catch (error) {
 		next(error);
