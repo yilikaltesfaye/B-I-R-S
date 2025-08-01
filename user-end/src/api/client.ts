@@ -13,4 +13,11 @@ export const setAccessToken = (token: string | null) => {
 	else delete apiClient.defaults.headers.common.Authorization;
 };
 
-export const queryClient = new QueryClient();
+export const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			staleTime: 5 * 60 * 1000,
+			refetchOnWindowFocus: false,
+		},
+	},
+});
