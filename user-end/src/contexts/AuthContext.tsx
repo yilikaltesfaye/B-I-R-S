@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-import type { User } from "../types";
+import type { Role, User } from "../types";
 import {
 	useRequestOtp,
 	useVerifyOtp,
@@ -15,7 +15,7 @@ import { authApi } from "@/api/auth/api";
 
 type AuthContextType = {
 	user: User | null;
-	role?: string;
+	role?: Role;
 	isLoading: boolean;
 	login: (payload: {
 		phone: string;
