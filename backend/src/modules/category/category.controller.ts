@@ -22,6 +22,18 @@ export const createCategoryController = async (
 
 		const category = await prisma.category.create({
 			data: { name, description, IconUrl },
+			select: {
+				id: true,
+				name: true,
+				description: true,
+				IconUrl: true,
+				authorityOffices: {
+					select: {
+						id: true,
+						officeName: true,
+					},
+				},
+			},
 		});
 
 		res.status(201).json({
@@ -134,6 +146,12 @@ export const updateCategoryController = async (
 				name: true,
 				description: true,
 				IconUrl: true,
+				authorityOffices: {
+					select: {
+						id: true,
+						officeName: true,
+					},
+				},
 			},
 		});
 

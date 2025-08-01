@@ -171,7 +171,9 @@ export const updateAuthorityOfficeController = async (
 	try {
 		const officeId = Number(req.params.id);
 		const updateData = req.body;
-
+		if(updateData.include("id")){
+			delete updateData.id
+		}
 		// Check if office exists
 		const existingOffice = await prisma.authorityOffice.findUnique({
 			where: { id: officeId },
