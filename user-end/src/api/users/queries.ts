@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { userApi } from "./api";
-import type { User } from "@/types";
+import type { Role, User } from "@/types";
 import { QUERY_KEYS } from "../constants";
 
 export const useMe = (enabled: boolean = true) =>
-	useQuery<{ id: string; role: string }>({
+	useQuery<{ id: string; role: Role }>({
 		queryKey: QUERY_KEYS.USER.CURRENT,
 		queryFn: () => userApi.me().then((res) => res.data),
 		retry: false,

@@ -1,6 +1,6 @@
 import { userApi } from "./api";
 import { useMutation } from "@tanstack/react-query";
-import type { User, UserUpdatePayload } from "@/types";
+import type { Role, User, UserUpdatePayload } from "@/types";
 import { QUERY_KEYS } from "../constants";
 import { queryClient } from "../client";
 
@@ -24,7 +24,7 @@ export const useUpdateUser = () =>
 			);
 			const previousUserCurrent = queryClient.getQueryData<{
 				id: string;
-				role: string;
+				role: Role;
 			}>(QUERY_KEYS.USER.CURRENT);
 
 			// Optimistically update cache
