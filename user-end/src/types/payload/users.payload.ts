@@ -2,11 +2,11 @@ import type { Role } from "@/types";
 
 export interface Address {
 	region: string;
-	zone: string | null;
-	woreda: string | null;
-	city: string | null;
-	subCity: string | null;
-	kebele: string | null;
+	zone?: string;
+	woreda?: string;
+	city?: string;
+	subCity?: string;
+	kebele?: string;
 	[key: string]: any;
 }
 

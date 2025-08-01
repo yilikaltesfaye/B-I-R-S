@@ -20,20 +20,20 @@ export enum Status {
 export interface User {
 	id: string;
 	phone: string;
-	email: string | null;
+	email?: string;
 	name: string;
 	role: Role;
 	address: Address;
 	isActive: boolean;
 	updatedAt: string;
 	createdAt: string;
-	authorityStaff: {
+	authorityStaff?: {
 		position: string;
 		authorityOffice: {
 			id: string;
 			officeName: string;
 		};
-	} | null;
+	};
 }
 
 export interface Report {
@@ -64,40 +64,36 @@ export interface Comment {
 	content: string;
 	createdAt: Date;
 	reportId: string;
-	replyToId: string | null;
+	replyToId?: string;
 	user: {
 		id: string;
 		name: string;
 	};
-	replies:
-		| ({
-				user: {
-					id: string;
-					name: string;
-				};
-		  } & {
-				id: string;
-				updatedAt: Date;
-				userId: string;
-				content: string;
-				createdAt: Date;
-				reportId: string;
-				replyToId: string | null;
-		  })[]
-		| null;
+	replies?: ({
+		user: {
+			id: string;
+			name: string;
+		};
+	} & {
+		id: string;
+		updatedAt: Date;
+		userId: string;
+		content: string;
+		createdAt: Date;
+		reportId: string;
+		replyToId?: string;
+	})[];
 }
 
 export interface Category {
 	id: number;
 	name: string;
 	description: string;
-	IconUrl: string | null;
-	authorityOffices:
-		| {
-				id: number;
-				officeName: string;
-		  }[]
-		| null;
+	IconUrl?: string;
+	authorityOffices?: {
+		id: number;
+		officeName: string;
+	}[];
 }
 
 export interface AuthorityOffice {
@@ -106,17 +102,15 @@ export interface AuthorityOffice {
 	officeName: string;
 	email: string;
 	address: Address;
-	iconUrl: string | null;
+	iconUrl?: string;
 	isActive: boolean;
 	createdAt: Date;
 	updatedAt: Date;
-	parentOfficeId: number | null;
-	categories:
-		| {
-				id: number;
-				name: string;
-				description: string;
-				IconUrl: string | null;
-		  }[]
-		| null;
+	parentOfficeId?: number;
+	categories?: {
+		id: number;
+		name: string;
+		description: string;
+		IconUrl?: string;
+	}[];
 }

@@ -14,8 +14,8 @@ export interface RegisterPayload {
 	password: string;
 	fullname: string;
 	appContext: "admin" | "user" | "authority";
-	email: string | null;
-	guestToken: string | null;
+	email?: string;
+	guestToken?: string;
 	address: {
 		region: string;
 		zone: string;
