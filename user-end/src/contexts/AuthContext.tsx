@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-import type { Role, User } from "../types";
+import type { LoginPayload, Role, User } from "../types";
 import {
 	useRequestOtp,
 	useVerifyOtp,
@@ -17,11 +17,7 @@ type AuthContextType = {
 	user: User | null;
 	role?: Role;
 	isLoading: boolean;
-	login: (payload: {
-		phone: string;
-		password: string;
-		appContext: "user" | "admin" | "authority";
-	}) => Promise<void>;
+	login: (payload: LoginPayload) => Promise<void>;
 	register: (payload: any) => Promise<void>;
 	logout: () => Promise<void>;
 	requestOtp: ReturnType<typeof useRequestOtp>;
@@ -50,6 +46,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	const logoutM = useLogout();
 	const requestOtpM = useRequestOtp();
 	const verifyOtpM = useVerifyOtp();
+	const [isInitializing, setIsInitializing] = useState(true);
+
+	useEffect(() => {
+		const initializeAuth = async () => {
+			try {
+				const res = await authApi.refreshAccessToken();
+				internalSetAccessToken(res.data.accessToken);
+				setAccessToken(res.data.accessToken);
+				await meQuery.refetch();
+				await userQuery.refetch();
+			} catch (error: any) {
+				if (error.response?.status === 401) {
+					// User is not logged in, no refresh token — silently handle
+					setUser(null);
+					internalSetAccessToken(null);
+					setAccessToken(null);
+				} else {
+					console.error("Unexpected error during token refresh", error);
+				}
+			} finally {
+				setIsInitializing(false);
+			}
+		};
+		initializeAuth();
+	}, []);
 
 	// === Track login state ===
 	useEffect(() => {
@@ -81,11 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	}, [user]);
 
 	// === Auth API wrappers ===
-	const login = async (payload: {
-		phone: string;
-		password: string;
-		appContext: "user" | "admin" | "authority";
-	}) => {
+	const login = async (payload: LoginPayload) => {
 		const res = await loginM.mutateAsync(payload);
 		internalSetAccessToken(res.accessToken);
 		setAccessToken(res.accessToken);
@@ -111,7 +128,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			value={{
 				user,
 				role: meQuery.data?.role,
-				isLoading: meQuery.isLoading,
+				isLoading: meQuery.isLoading || isInitializing,
 				login,
 				register,
 				logout,
