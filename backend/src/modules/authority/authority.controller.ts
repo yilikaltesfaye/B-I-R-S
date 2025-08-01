@@ -12,7 +12,7 @@ export const createAuthorityOfficeController = async (
 		const { officeName, email, phone, address, iconUrl, parentOfficeId } =
 			req.body;
 
-		if (!officeName || !email || !phone || !address || !iconUrl) {
+		if (!officeName || !email || !phone || !address) {
 			throw new HttpError("Missing required fields", 400);
 		}
 
@@ -47,6 +47,18 @@ export const createAuthorityOfficeController = async (
 				createdAt: true,
 				updatedAt: true,
 				parentOfficeId: true,
+				categories: true,
+				authorityStaff: {
+					select: {
+						position: true,
+						user: {
+							select: {
+								name: true,
+								id: true,
+							},
+						},
+					},
+				},
 			},
 		});
 
@@ -171,8 +183,8 @@ export const updateAuthorityOfficeController = async (
 	try {
 		const officeId = Number(req.params.id);
 		const updateData = req.body;
-		if(updateData.include("id")){
-			delete updateData.id
+		if (updateData.include("id")) {
+			delete updateData.id;
 		}
 		// Check if office exists
 		const existingOffice = await prisma.authorityOffice.findUnique({
