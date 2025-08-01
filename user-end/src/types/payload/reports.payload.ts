@@ -5,3 +5,14 @@ export interface CreateReportPayload {
 	description: string;
 	categoryId: number;
 }
+
+export type GetFilteredReportsPayload = {
+	region?: string;
+	zone?: string;
+	woreda?: string;
+	city?: string;
+	subCity?: string;
+	kebele?: string;
+	skip?: number;
+	take?: number;
+};

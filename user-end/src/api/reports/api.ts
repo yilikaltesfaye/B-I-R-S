@@ -1,4 +1,8 @@
-import type { CreateReportPayload, Report } from "@/types";
+import type {
+	CreateReportPayload,
+	GetFilteredReportsPayload,
+	Report,
+} from "@/types";
 import { apiClient } from "../client";
 
 export const reportsApi = {
@@ -6,6 +10,7 @@ export const reportsApi = {
 		apiClient.post("/reports", payload),
 	getReportsByCategoryId: (categoryId: number) =>
 		apiClient.get<Report[]>(`/reports/${categoryId}`),
-	// getFilteredReports: (payload : GetFilteredReports) => apiClient.get<Report[]>("/reports/filter"),
+	getFilteredReports: (payload: GetFilteredReportsPayload) =>
+		apiClient.get<Report[]>("/reports/filter", { params: payload }),
 	getReportById: (id: string) => apiClient.get<Report>(`/reports/${id}`),
 };
