@@ -30,5 +30,5 @@ export const authApi = {
 	refreshAccessToken: () =>
 		apiClient.post<{ accessToken: string }>("/auth/refresh-access-token"),
 	resetPassword: (payload: ResetPasswordPayload) =>
-		apiClient.post("/resetpassword", payload), // not done yet
+		apiClient.post("/resetpassword", payload),
 };

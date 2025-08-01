@@ -1,5 +1,3 @@
-// TanStack Query hooks
-
 import { useQuery } from "@tanstack/react-query";
 import { reportsApi } from "./api";
 import type { GetFilteredReportsPayload } from "@/types";
