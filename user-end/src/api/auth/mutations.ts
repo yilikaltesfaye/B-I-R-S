@@ -4,6 +4,7 @@ import type {
 	VerifyOtpPayload,
 	RegisterPayload,
 	LoginPayload,
+	ResetPasswordPayload,
 } from "../../types";
 import { queryClient, setAccessToken } from "../client";
 import { authApi } from "./api";
@@ -49,3 +50,9 @@ export const useLogout = () =>
 			queryClient.removeQueries({ queryKey: QUERY_KEYS.USER.FULL });
 		},
 	});
+export const useResetPassword = () => {
+	return useMutation({
+		mutationFn: (payload: ResetPasswordPayload) =>
+			authApi.resetPassword(payload).then((res) => res.data),
+	});
+};
