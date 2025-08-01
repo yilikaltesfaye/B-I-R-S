@@ -8,6 +8,7 @@ import {
 	RequestOtpSchema,
 	VerifyOtpSchema,
 } from "./auth.schema";
+import { HttpError } from "../../middlewares/HttpError";
 
 // request one time password controller for verfication registration || forgot password
 
@@ -248,7 +249,7 @@ export const regenerateAccessTokenController = async (
 		const refreshToken = req.body?.refreshToken || req.cookies.refreshToken;
 
 		if (!refreshToken) {
-			throw new Error("Refresh token missing");
+			throw new HttpError("Refresh token missing", 401);
 		}
 
 		const { accessToken } =

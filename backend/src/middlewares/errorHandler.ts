@@ -26,4 +26,5 @@ export function errorHandler(
 		errorCode: statusCode,
 		...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
 	});
+	console.log(err.message, statusCode);
 }
