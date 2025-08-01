@@ -1,10 +1,12 @@
+import type { Role } from "@/types";
+
 export interface Address {
 	region: string;
-	zone?: string;
-	woreda?: string;
-	city?: string;
-	subCity?: string;
-	kebele?: string;
+	zone: string | null;
+	woreda: string | null;
+	city: string | null;
+	subCity: string | null;
+	kebele: string | null;
 	[key: string]: any;
 }
 
@@ -14,6 +16,6 @@ export type UserUpdatePayload = Partial<{
 	phone: string;
 	address: Address;
 	password: string;
-	role: string;
+	role: Role;
 	isActive: boolean;
 }>;

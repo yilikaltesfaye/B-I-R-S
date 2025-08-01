@@ -14,8 +14,8 @@ export interface RegisterPayload {
 	password: string;
 	fullname: string;
 	appContext: "admin" | "user" | "authority";
-	email?: string;
-	guestToken?: string;
+	email: string | null;
+	guestToken: string | null;
 	address: {
 		region: string;
 		zone: string;
@@ -30,4 +30,9 @@ export interface LoginPayload {
 	phone: string;
 	password: string;
 	appContext: "admin" | "user" | "authority";
+}
+export interface ResetPasswordPayload {
+	guestToken: string;
+	phoneNumber: string;
+	newPassword: string;
 }
