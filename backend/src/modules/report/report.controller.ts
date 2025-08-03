@@ -1,9 +1,10 @@
 import prisma from "../../clients/prismaClient";
 import { HttpError } from "../../middlewares/HttpError";
 import { NextFunction, Request, Response } from "express";
-import { ReportSchema, UpdateReportStatusSchema } from "./report.schema";
+import { ReportSchema } from "./report.schema";
 import * as ReportService from "./report.service";
 import { AuthedRequest } from "../../middlewares/auth.middleware";
+import { Status } from "@prisma/client";
 
 export const createReportController = async (
 	req: AuthedRequest,
@@ -99,7 +100,12 @@ export const getReportsByCategoryController = async (
 	next: NextFunction
 ) => {
 	try {
-		const categoryId = Number(req.params.categoryId);
+		const rawId = req.params.categoryId;
+		const categoryId = Number(rawId);
+
+		if (!rawId || isNaN(categoryId)) {
+			throw new HttpError("Invalid or missing category ID", 400);
+		}
 		const reports = await ReportService.getReportsByCategoryService(categoryId);
 		res.json({
 			title: "success",
@@ -204,7 +210,7 @@ export const getReportsByAddressController = async (
 ) => {
 	try {
 		// Pull filters from query params (e.g., ?region=Addis&city=Bole)
-		const { region, zone, woreda, city, subCity, kebele, skip, take } =
+		const { region, zone, woreda, city, subCity, kebele, skip, take, status } =
 			req.query;
 
 		// Default pagination values
@@ -220,18 +226,31 @@ export const getReportsByAddressController = async (
 		if (subCity) addressFilters.subCity = subCity as string;
 		if (kebele) addressFilters.kebele = kebele as string;
 
-		// Compose Prisma where condition
-		const whereCondition =
-			Object.keys(addressFilters).length > 0
-				? {
-						AND: Object.entries(addressFilters).map(([key, value]) => ({
-							address: {
-								path: [key],
-								equals: value,
-							},
-						})),
-					}
-				: {};
+		const addressConditions = Object.entries(addressFilters).map(
+			([key, value]) => ({
+				address: {
+					path: [key],
+					equals: value,
+				},
+			})
+		);
+
+		// Validate and cast status string to enum
+		let statusFilter: Status | undefined = undefined;
+		if (
+			status &&
+			typeof status === "string" &&
+			Object.values(Status).includes(status as Status)
+		) {
+			statusFilter = status as Status;
+		}
+
+		const whereCondition = {
+			AND: [
+				...addressConditions,
+				...(statusFilter ? [{ status: statusFilter }] : []),
+			],
+		};
 
 		// Fetch reports with pagination & sorting
 		const reports = await prisma.report.findMany({
@@ -252,6 +271,67 @@ export const getReportsByAddressController = async (
 				take: takeNumber,
 				count: reports.length,
 			},
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getReportByUserIdController = async (
+	req: AuthedRequest,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const userId = req.params.userId;
+
+		if (!userId) throw new HttpError("userId Required", 400);
+
+		if (req.userId !== userId || req.userRole !== "ADMIN") {
+			throw new HttpError(
+				"you are not authorozied to reports made by this user",
+				401
+			);
+		}
+
+		const reports = await prisma.report.findMany({
+		select: {
+			id: true,
+			description: true,
+			status: true,
+			submittedAt: true,
+			address: true,
+			updatedAt: true,
+			category: {
+				select: {
+					name: true,
+				},
+			},
+			authorityOffice: {
+				select: {
+					officeName: true,
+					address: true,
+					iconUrl: true,
+				},
+			},
+			user: {
+				select: {
+					name: true,
+					id: true,
+				},
+			},
+		},
+	});
+		if (reports.length === 0) {
+			return res.status(404).json({
+				title: "fail",
+				message: "There are no reports made by this user",
+			});
+		}
+		res.json({
+			title: "success",
+			message: "these are the reports made by you",
+			data: reports,
 		});
 	} catch (error) {
 		next(error);

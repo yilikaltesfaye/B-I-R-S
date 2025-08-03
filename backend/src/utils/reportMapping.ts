@@ -20,7 +20,7 @@ export const routeReportToAuthority = async (
 
 	// 2. Try direct matches by coverage
 	for (const office of offices) {
-		const coverage = (office as any).coverageArea as Address;
+		const coverage = office.address as Address;
 
 		if (matchesCoverage(address, coverage)) {
 			return office;
@@ -32,7 +32,7 @@ export const routeReportToAuthority = async (
 		let current = office.parentOffice;
 
 		while (current) {
-			const coverage = (current as any).coverageArea as Address;
+			const coverage = current.address as Address;
 
 			if (matchesCoverage(address, coverage)) {
 				return current;
