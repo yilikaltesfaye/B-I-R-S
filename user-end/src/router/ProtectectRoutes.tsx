@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
+import Navbar from "@/common/Navbar";
 
 const ProtectectRoutes = () => {
 	const { user, isLoading } = useAuth();
@@ -31,7 +32,12 @@ const ProtectectRoutes = () => {
 		return <Navigate to="/login" replace state={{ from: location }} />;
 	}
 
-	return <Outlet />;
+	return (
+		<>
+			<Outlet />
+			<Navbar />
+		</>
+	);
 };
 
 export default ProtectectRoutes;
