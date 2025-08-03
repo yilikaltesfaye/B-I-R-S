@@ -12,7 +12,7 @@ export interface VerifyOtpPayload {
 export interface RegisterPayload {
 	phone: string;
 	password: string;
-	fullname: string;
+	fullName: string;
 	appContext: "user";
 	email?: string;
 	guestToken?: string;
