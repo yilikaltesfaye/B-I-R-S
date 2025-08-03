@@ -209,15 +209,12 @@ export const getReportsByAddressController = async (
 	next: NextFunction
 ) => {
 	try {
-		// Pull filters from query params (e.g., ?region=Addis&city=Bole)
 		const { region, zone, woreda, city, subCity, kebele, skip, take, status } =
 			req.query;
 
-		// Default pagination values
 		const skipNumber = parseInt(skip as string) || 0;
-		const takeNumber = Math.min(parseInt(take as string) || 50, 100); // max 100 to protect DB
+		const takeNumber = Math.min(parseInt(take as string) || 50, 100);
 
-		// Build dynamic JSON filters
 		const addressFilters: Record<string, string> = {};
 		if (region) addressFilters.region = region as string;
 		if (zone) addressFilters.zone = zone as string;
@@ -225,6 +222,15 @@ export const getReportsByAddressController = async (
 		if (city) addressFilters.city = city as string;
 		if (subCity) addressFilters.subCity = subCity as string;
 		if (kebele) addressFilters.kebele = kebele as string;
+
+		let statusFilter: Status | undefined = undefined;
+		if (
+			status &&
+			typeof status === "string" &&
+			Object.values(Status).includes(status as Status)
+		) {
+			statusFilter = status as Status;
+		}
 
 		const addressConditions = Object.entries(addressFilters).map(
 			([key, value]) => ({
@@ -235,35 +241,52 @@ export const getReportsByAddressController = async (
 			})
 		);
 
-		// Validate and cast status string to enum
-		let statusFilter: Status | undefined = undefined;
-		if (
-			status &&
-			typeof status === "string" &&
-			Object.values(Status).includes(status as Status)
-		) {
-			statusFilter = status as Status;
+		const whereCondition: any = {};
+
+		if (addressConditions.length > 0) {
+			whereCondition.OR = addressConditions;
 		}
 
-		const whereCondition = {
-			AND: [
-				...addressConditions,
-				...(statusFilter ? [{ status: statusFilter }] : []),
-			],
-		};
+		if (statusFilter) {
+			whereCondition.status = statusFilter;
+		}
 
-		// Fetch reports with pagination & sorting
 		const reports = await prisma.report.findMany({
 			where: whereCondition,
 			skip: skipNumber,
 			take: takeNumber,
+			select: {
+				id: true,
+				description: true,
+				status: true,
+				submittedAt: true,
+				address: true,
+				updatedAt: true,
+				category: {
+					select: {
+						name: true,
+					},
+				},
+				authorityOffice: {
+					select: {
+						officeName: true,
+						address: true,
+						iconUrl: true,
+					},
+				},
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+			},
 			orderBy: {
 				submittedAt: "desc",
 			},
 		});
-
 		res.json({
-			title: "success",
+			title: "Success",
 			message: "Reports fetched",
 			data: reports,
 			pagination: {
@@ -287,7 +310,7 @@ export const getReportByUserIdController = async (
 
 		if (!userId) throw new HttpError("userId Required", 400);
 
-		if (req.userId !== userId || req.userRole !== "ADMIN") {
+		if (req.userId !== userId && req.userRole !== "ADMIN") {
 			throw new HttpError(
 				"you are not authorozied to reports made by this user",
 				401
@@ -295,33 +318,36 @@ export const getReportByUserIdController = async (
 		}
 
 		const reports = await prisma.report.findMany({
-		select: {
-			id: true,
-			description: true,
-			status: true,
-			submittedAt: true,
-			address: true,
-			updatedAt: true,
-			category: {
-				select: {
-					name: true,
+			where: {
+				userId: userId,
+			},
+			select: {
+				id: true,
+				description: true,
+				status: true,
+				submittedAt: true,
+				address: true,
+				updatedAt: true,
+				category: {
+					select: {
+						name: true,
+					},
+				},
+				authorityOffice: {
+					select: {
+						officeName: true,
+						address: true,
+						iconUrl: true,
+					},
+				},
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
 				},
 			},
-			authorityOffice: {
-				select: {
-					officeName: true,
-					address: true,
-					iconUrl: true,
-				},
-			},
-			user: {
-				select: {
-					name: true,
-					id: true,
-				},
-			},
-		},
-	});
+		});
 		if (reports.length === 0) {
 			return res.status(404).json({
 				title: "fail",
