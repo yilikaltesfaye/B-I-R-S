@@ -5,9 +5,12 @@ export interface CreateReportPayload {
 	description: string;
 	categoryId: number;
 }
+export const STATUS_TABS = ["PENDING", "APPROVED", "REJECTED"] as const;
+export type StatusTab = (typeof STATUS_TABS)[number];
 
-export type GetFilteredReportsPayload = {
-	region?: string;
+export interface GetFilteredReportsPayload {
+	region: string;
+	status: StatusTab;
 	zone?: string;
 	woreda?: string;
 	city?: string;
@@ -15,4 +18,4 @@ export type GetFilteredReportsPayload = {
 	kebele?: string;
 	skip?: number;
 	take?: number;
-};
+}

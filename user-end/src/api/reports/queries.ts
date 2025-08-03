@@ -27,3 +27,11 @@ export const useReportById = (id: string) => {
 		enabled: !!id,
 	});
 };
+
+export const useReportsByUserId = (userId: string) => {
+	return useQuery({
+		queryKey: ["reports", userId],
+		queryFn: () => reportsApi.getReportsbyUserId(userId),
+		enabled: !!userId, // only fetch if userId is truthy
+	});
+};
