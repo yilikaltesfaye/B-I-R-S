@@ -1,21 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
-
-// Inline Zod schema
-const loginSchema = z.object({
-	phone: z
-		.string()
-		.min(10, "Phone number too short")
-		.regex(/^\+2519\d{8}$/, "Phone must start with +2519 and be 12 digits"),
-	password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type LoginInput = z.infer<typeof loginSchema>;
+import { type LoginInput, loginSchema } from "@/schema";
 
 const LoginPage = () => {
 	const { user, login } = useAuth();
@@ -97,6 +86,9 @@ const LoginPage = () => {
 					{isSubmitting ? "Logging in..." : "Login"}
 				</button>
 			</form>
+			<p>
+				Don't have an account? <Link to="/register">Register</Link>
+			</p>
 		</div>
 	);
 };
