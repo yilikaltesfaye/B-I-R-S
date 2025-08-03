@@ -11,11 +11,15 @@ router.post(
 	Auth.requestOtpController
 ); // request password otp route for both account creation and password recovery
 
-router.post("/verifyotp", requestRateLimiter("OTP"), Auth.verifyOtpController); // request password otp route for both account creation and password recovery
+router.post(
+	"/verifyotp",
+	//  requestRateLimiter("OTP"),
+	Auth.verifyOtpController
+); // request password otp route for both account creation and password recovery
 
 router.post(
 	"/register",
-	requestRateLimiter("Registration"),
+	// requestRateLimiter("Registration"),
 	Auth.registerController
 ); // register route
 

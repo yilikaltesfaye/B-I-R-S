@@ -66,15 +66,23 @@ export const verifyOtpService = async (data: VerifyOtpInterface) => {
 // registration service and sends back access and refresh tokens
 
 export const registerService = async (data: RegisterInterface) => {
-	const exisiting = await prisma.user.findUnique({
+	const existing = await prisma.user.findUnique({
 		where: { phone: data.phone },
 	});
 	// await checkRedis(data.phone, data.guestToken);
-
-	if (exisiting) {
+	if (existing) {
 		throw new HttpError("Phone number is already in use", 409);
 	}
-	// if (exisiting) throw new Error("ስልክ ቁጥሩ ሌላ ተጠቃሚ ይዞታል");
+
+	const emailExist = await prisma.user.findUnique({
+		where: { email: data.email },
+	});
+
+	if (emailExist)
+		throw new HttpError(
+			"The Email you submitted is already associated with an accout",
+			409
+		);
 
 	const hashed = await hashPassword(data.password);
 	const user = await prisma.user.create({
@@ -99,7 +107,6 @@ export const registerService = async (data: RegisterInterface) => {
 			},
 		},
 	});
-
 	if (data.appContext === "admin" && user.role !== "ADMIN") {
 		throw new HttpError(
 			"Access denied: Registration was complete but as a user you can't access the admin platform. Use the Citizen platform.",
@@ -153,7 +160,6 @@ export const loginService = async (data: LoginInterface) => {
 	});
 	// if (!user) throw new HttpError("Invalid Phone or Password", 401);
 	if (!user) throw new HttpError("በዚስልክ ቁጥሩ ተጠቃሚ የለም", 401);
-
 	const valid = await comparePasswords(data.password, user.password);
 	if (!valid) throw new HttpError("Invalid Phone or Password", 401);
 

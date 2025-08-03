@@ -34,7 +34,7 @@ export const RegisterSchema = z.object({
 	password: z.string().min(6),
 	address: AddressSchema,
 	appContext: z.string().pipe(z.enum(appType)),
-	email: z.string().email().optional(),
+	email: z.string().email().or(z.literal("")).optional(),
 });
 
 export const LoginSchema = z.object({

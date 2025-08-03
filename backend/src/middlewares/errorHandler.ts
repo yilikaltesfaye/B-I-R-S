@@ -9,7 +9,7 @@ export function errorHandler(
 	res: Response,
 	next: NextFunction
 ) {
-	// console.error("Error:", err);
+	console.error("Error:", err);
 
 	if (err instanceof ZodError) {
 		return res.status(400).json({
@@ -17,6 +17,7 @@ export function errorHandler(
 			message: "Zod Validation error",
 			errors: err.errors,
 		});
+		console.log(err)
 	}
 	const statusCode = err instanceof HttpError ? err.status : 500;
 
