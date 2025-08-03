@@ -27,6 +27,7 @@ export const ReportCard = ({ report }: Props) => {
 				<div className="flex justify-between mt-3 text-sm text-gray-600">
 					<span>{report.address?.region || "Unknown location"}</span>
 					{report.category && <span> {report.category.name}</span>}
+					<p>Reported By {report.user.name}</p>
 				</div>
 			</div>
 		</Link>

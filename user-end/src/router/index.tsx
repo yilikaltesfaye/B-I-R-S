@@ -8,6 +8,8 @@ import RegisterPage from "@/pages/public/RegisterPage";
 import ErrorPage from "@/common/ErrorPage.tsx";
 import MyReportsPage from "@/pages/Protected/MyReportsPage.tsx";
 import CreateReportPage from "@/pages/Protected/CreateReportPage.tsx";
+import ActivityPage from "@/pages/Protected/Activity.tsx";
+import SettingPage from "@/pages/Protected/Setting.tsx";
 
 const router = createBrowserRouter([
 	{ path: "/", Component: HomePage },
@@ -24,8 +26,8 @@ const router = createBrowserRouter([
 			{ path: "/feed", Component: Feed },
 			{ path: "/reports", Component: MyReportsPage },
 			{ path: "/report/new", Component: CreateReportPage },
-			{ path: "/activity", Component: Feed },
-			{ path: "/settings", Component: Feed },
+			{ path: "/activity", Component: ActivityPage },
+			{ path: "/settings", Component: SettingPage },
 			{ path: "*", element: <ErrorPage /> },
 		],
 	},
