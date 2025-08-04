@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-
 import type { LoginPayload, Role, User } from "../types";
 import {
 	useRequestOtp,
@@ -9,7 +8,6 @@ import {
 	useLogin,
 	useRegister,
 	useLogout,
-	setAccessToken,
 } from "@/api";
 import { authApi } from "@/api/auth/api";
 
@@ -35,33 +33,30 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	const [user, setUser] = useState<User | null>(null);
 	const [accessToken, internalSetAccessToken] = useState<string | null>(null);
+	const [isInitializing, setIsInitializing] = useState(true);
 
-	// === Controlled queries ===
-	const meQuery = useMe(!!accessToken);
-	const userQuery = useUserFull(!!accessToken);
+	const shouldFetch = !!accessToken && !isInitializing;
 
-	// === Auth actions ===
+	// Controlled queries
+	const meQuery = useMe(shouldFetch);
+	const userQuery = useUserFull(shouldFetch);
+
+	// Mutations
 	const loginM = useLogin();
 	const registerM = useRegister();
 	const logoutM = useLogout();
 	const requestOtpM = useRequestOtp();
 	const verifyOtpM = useVerifyOtp();
-	const [isInitializing, setIsInitializing] = useState(true);
 
 	useEffect(() => {
 		const initializeAuth = async () => {
 			try {
 				const res = await authApi.refreshAccessToken();
 				internalSetAccessToken(res.data.accessToken);
-				setAccessToken(res.data.accessToken);
-				await meQuery.refetch();
-				await userQuery.refetch();
 			} catch (error: any) {
 				if (error.response?.status === 401) {
-					// User is not logged in, no refresh token — silently handle
 					setUser(null);
 					internalSetAccessToken(null);
-					setAccessToken(null);
 				} else {
 					console.error("Unexpected error during token refresh", error);
 				}
@@ -72,17 +67,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		initializeAuth();
 	}, []);
 
-	// === Track login state ===
+	// Set user once queries succeed
 	useEffect(() => {
-		if (meQuery.isSuccess && userQuery.data) {
+		if (
+			meQuery.isSuccess &&
+			userQuery.isSuccess &&
+			userQuery.data &&
+			user?.id !== userQuery.data.id
+		) {
 			setUser(userQuery.data);
-		}
-		if (meQuery.isError) {
+		} else if (meQuery.isError && user !== null) {
 			setUser(null);
 		}
 	}, [meQuery.status, userQuery.data]);
 
-	// === Token refresh logic ===
+	// Token refresh interval
 	useEffect(() => {
 		let interval: ReturnType<typeof setInterval> | undefined;
 		if (user) {
@@ -90,29 +89,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 				try {
 					const res = await authApi.refreshAccessToken();
 					internalSetAccessToken(res.data.accessToken);
-					setAccessToken(res.data.accessToken);
 				} catch {
 					setUser(null);
 					internalSetAccessToken(null);
-					setAccessToken(null);
 				}
-			}, 15 * 60 * 1000);
+			}, 15 * 60 * 1000); // every 15 minutes
 		}
 		return () => clearInterval(interval);
 	}, [user]);
 
-	// === Auth API wrappers ===
 	const login = async (payload: LoginPayload) => {
 		const res = await loginM.mutateAsync(payload);
 		internalSetAccessToken(res.accessToken);
-		setAccessToken(res.accessToken);
 		setUser(res.userData);
 	};
 
 	const register = async (payload: any) => {
 		const res = await registerM.mutateAsync(payload);
 		internalSetAccessToken(res.accessToken);
-		setAccessToken(res.accessToken);
 		setUser(res.userData);
 	};
 
@@ -120,7 +114,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		await logoutM.mutateAsync();
 		setUser(null);
 		internalSetAccessToken(null);
-		setAccessToken(null);
 	};
 
 	return (
