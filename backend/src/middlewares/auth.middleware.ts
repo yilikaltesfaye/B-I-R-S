@@ -18,6 +18,7 @@ export const requireAuth = (
 		res.status(401).json({ title: "fail", message: "Access token required" });
 		return;
 	}
+	console.log(token);
 
 	try {
 		const payload = verifyAccessToken(token);
