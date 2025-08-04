@@ -74,16 +74,6 @@ export const registerService = async (data: RegisterInterface) => {
 		throw new HttpError("Phone number is already in use", 409);
 	}
 
-	const emailExist = await prisma.user.findUnique({
-		where: { email: data.email },
-	});
-
-	if (emailExist)
-		throw new HttpError(
-			"The Email you submitted is already associated with an accout",
-			409
-		);
-
 	const hashed = await hashPassword(data.password);
 	const user = await prisma.user.create({
 		data: {

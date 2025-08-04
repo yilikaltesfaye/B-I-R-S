@@ -92,7 +92,7 @@ export const registerController = async (
 	try {
 		const validated = RegisterSchema.parse(req.body);
 		const phone = standardPhone(validated.phone);
-
+		console.log("what is  sent: ", validated);
 		const result = await AuthService.registerService({
 			name: validated.fullName,
 			phone,
@@ -104,7 +104,6 @@ export const registerController = async (
 		});
 
 		const { accessToken, refreshToken, userData } = result;
-
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 		if (isMobileClient) {
 			res.json({
@@ -154,7 +153,7 @@ export const loginController = async (
 		});
 
 		const { accessToken, refreshToken, userData } = result;
-
+		console.log(userData);
 		const isMobileClient = req.headers["user-agent"]?.includes("ReactNative");
 
 		if (isMobileClient) {

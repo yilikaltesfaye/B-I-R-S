@@ -63,6 +63,19 @@ export const getUserByIdController = async (
 
 		const user = await prisma.user.findUnique({
 			where: { id: targetUserId },
+			include: {
+				authorityStaff: {
+					select: {
+						position: true,
+						authorityOffice: {
+							select: {
+								officeName: true,
+								id: true,
+							},
+						},
+					},
+				},
+			},
 		});
 
 		if (!user) {
