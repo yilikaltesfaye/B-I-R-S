@@ -17,18 +17,23 @@ const HomePage = () => {
 	}
 
 	return (
-		<main>
-			<header>
+		<main className="flex flex-col gap-40 items-center justify-center h-screen">
+			<header className="flex flex-col items-center gap-2">
 				<h1>BIRS</h1>
-				<p>Report and Make Your City Better than Before</p>
+				<p className="p-10 text-center italic font-extrabold">
+					Report and Make Your City Better than Before
+				</p>
 			</header>
 
-			<section>
+			<section className="flex flex-col gap-5 items-center">
 				<Link to="/register">
-					<button>Report Now</button>
+					<button className="btn text-2xl cursor-pointer">Report Now</button>
 				</Link>
-				<p>
-					Already have an account? <Link to="/login">Log In</Link>
+				<p className="text-center italic font-extrabold">
+					Already have an account?{" "}
+					<Link to="/login" className="hover:underline cursor-pointer">
+						Log In
+					</Link>
 				</p>
 			</section>
 		</main>

@@ -1,10 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
 import { type LoginInput, loginSchema } from "@/schema";
+import AuthLayout from "./AuthLayout";
 
 const LoginPage = () => {
 	const { user, login } = useAuth();
@@ -41,55 +42,61 @@ const LoginPage = () => {
 	};
 
 	return (
-		<div className="max-w-md mx-auto p-4">
-			<h1 className="text-5xl mb-6">Login</h1>
-			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div>
-					<label htmlFor="phone" className="block font-medium mb-1">
-						Phone
-					</label>
-					<input
-						type="tel"
-						id="phone"
-						placeholder="+251912345678"
-						{...register("phone")}
-						className="input input-bordered w-full"
-					/>
-					{errors.phone && (
-						<p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>
-					)}
-				</div>
-				<div>
-					<label htmlFor="password" className="block font-medium mb-1">
-						Password
-					</label>
-					<input
-						type="password"
-						id="password"
-						placeholder="Enter your password"
-						{...register("password")}
-						className="input input-bordered w-full"
-						autoComplete="current-password"
-						inputMode="text"
-					/>
-					{errors.password && (
-						<p className="text-red-600 text-sm mt-1">
-							{errors.password.message}
-						</p>
-					)}
+		<AuthLayout AuthPage="Login">
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className="flex-grow flex flex-col gap-6 items-center justify-between"
+			>
+				<div className="flex flex-col gap-6">
+					<div className="flex flex-col gap-2 w-full">
+						<label htmlFor="phone" className="text-start italic font-extrabold">
+							Phone
+						</label>
+						<input
+							type="tel"
+							id="phone"
+							placeholder="+251912345678"
+							{...register("phone")}
+							className="outline-2 py-2 px-2 rounded-l-2xl w-full"
+						/>
+						{errors.phone && (
+							<p className="text-red-600 text-sm mt-1">
+								{errors.phone.message}
+							</p>
+						)}
+					</div>
+					<div className="flex flex-col gap-2 w-full">
+						<label
+							htmlFor="password"
+							className="text-start italic font-extrabold"
+						>
+							Password
+						</label>
+						<input
+							type="password"
+							id="password"
+							placeholder="Enter your password"
+							{...register("password")}
+							className="outline-2 py-2 px-2 rounded-l-2xl w-full"
+							autoComplete="current-password"
+							inputMode="text"
+						/>
+						{errors.password && (
+							<p className="text-red-600 text-sm mt-1">
+								{errors.password.message}
+							</p>
+						)}
+					</div>
 				</div>
 				<button
 					type="submit"
 					disabled={isSubmitting}
-					className="btn btn-primary w-full mt-4"
+					className="btn w-full mt-4 cursor-pointer"
 				>
 					{isSubmitting ? "Logging in..." : "Login"}
 				</button>
 			</form>
-			<p>
-				Don't have an account? <Link to="/register">Register</Link>
-			</p>
-		</div>
+		</AuthLayout>
 	);
 };
 
