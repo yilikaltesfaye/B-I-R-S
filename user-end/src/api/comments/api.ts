@@ -6,6 +6,6 @@ export const commentsApi = {
 	createComment: (payload: CreateCommentPayload) =>
 		apiClient.post<Comment>("/comments", payload),
 	getAllCommentsByReportId: (reportId: string) =>
-		apiClient.get<Comment[]>(`/comments/${reportId}`),
+		apiClient.get<{ title: string; data: Comment[] }>(`/comments/${reportId}`),
 	deleteComment: (id: string) => apiClient.delete(`/comments/${id}`),
 };
