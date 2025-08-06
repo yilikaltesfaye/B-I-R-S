@@ -23,36 +23,36 @@ export default function DashboardPage() {
 	const { data, isLoading: loadingPublic } = useFilteredReports(payload);
 	const userReports = forUser?.data.data;
 
-	// const [selectedTab, setSelectedTab] = useState<"public" | "user">("public");
-
 	const reports = data?.data.filter((report) => report.user.id !== user.id);
 
 	return (
 		<div className="p-6 space-y-6">
-			<header className="flex items-center justify-between">
-				<div>
-					<h1 className="text-2xl font-semibold">Welcome, {user?.name}</h1>
+			<header className="flex flex-col lg:flex-row gap-5 items-center justify-between">
+				<div className="self-start">
+					<h1 className="text-2xl cursive font-semibold">
+						Welcome, {user?.name}
+					</h1>
 					<p className="text-muted-foreground text-sm">
 						Report broken infrastructure and view your activity.
 					</p>
 				</div>
-				<div className="flex gap-4">
+				<div className="flex gap-4 self-start">
 					<Link to="/report/new">
-						<button>Submit New Report</button>
+						<button className="btn">Submit New Report</button>
 					</Link>
 					<Link to="/reports">
-						<button>View Your Reports</button>
+						<button className="btn">View Your Reports</button>
 					</Link>
 				</div>
 			</header>
 
 			<section>
-				<h2 className="text-lg font-medium mb-4">Your Recent Reports</h2>
+				<p className="text-lg cursive font-medium mb-4">Your Recent Reports</p>
 				{isLoading ? (
 					<p>Loading...</p>
 				) : userReports && userReports.length > 0 ? (
-					<div className="grid gap-4">
-						{userReports.slice(0, 5).map((report) => (
+					<div className="flex gap-4 justify-between flex-wrap">
+						{userReports.slice(0, 3).map((report) => (
 							<ReportCard key={report.id} report={report} />
 						))}
 					</div>
@@ -61,11 +61,13 @@ export default function DashboardPage() {
 				)}
 			</section>
 			<section>
-				<h2 className="text-lg font-medium mb-4">Other Reports Submitted</h2>
+				<p className="text-lg cursive font-medium mb-4">
+					Other Reports Submitted
+				</p>
 				{loadingPublic ? (
 					<p>Loading...</p>
 				) : reports && reports.length > 0 ? (
-					<div className="grid gap-4">
+					<div className="flex gap-4 justify-between flex-wrap">
 						{reports.slice(0, 5).map((report) => (
 							<ReportCard key={report.id} report={report} />
 						))}

@@ -37,131 +37,180 @@ export default function CreateReportPage() {
 	};
 
 	return (
-		<form onSubmit={onSubmit} className="max-w-lg mx-auto p-6 space-y-6">
+		<div className="p-6 space-y-6 flex flex-col w-full gap-8">
 			<h1 className="text-2xl font-semibold mb-4">Create New Report</h1>
-
-			{/* Category Dropdown */}
-			<div>
-				<label htmlFor="category" className="block font-medium mb-1">
-					Category
-				</label>
-				<select
-					id="category"
-					className="w-full border rounded p-2"
-					value={categoryId}
-					onChange={(e) => setCategoryId(Number(e.target.value))}
-					required
-				>
-					<option value="" disabled>
-						Select category
-					</option>
-					{categories.map((cat) => (
-						<option key={cat.id} value={cat.id}>
-							{cat.name}
+			<form onSubmit={onSubmit} className="flex flex-col self-center">
+				<div>
+					<label
+						htmlFor="category"
+						className="text-start italic font-extrabold"
+					>
+						Category
+					</label>
+					<select
+						id="category"
+						className="w-full border rounded p-2"
+						value={categoryId}
+						onChange={(e) => setCategoryId(Number(e.target.value))}
+						required
+					>
+						<option value="" disabled>
+							Select category
 						</option>
-					))}
-				</select>
-			</div>
-
-			{/* Description */}
-			<div>
-				<label htmlFor="description" className="block font-medium mb-1">
-					Description
-				</label>
-				<textarea
-					id="description"
-					className="w-full border rounded p-2"
-					rows={4}
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-					required
-				/>
-			</div>
-
-			{/* Address Fields */}
-			<fieldset className="border border-gray-300 rounded p-4 space-y-4">
-				<legend className="font-semibold">Address</legend>
+						{categories.map((cat) => (
+							<option key={cat.id} value={cat.id}>
+								{cat.name}
+							</option>
+						))}
+					</select>
+				</div>
 
 				<div>
-					<label className="block font-medium mb-1" htmlFor="region">
-						Region *
+					<label
+						htmlFor="description"
+						className="text-start italic font-extrabold"
+					>
+						Description
 					</label>
-					<input
-						id="region"
+					<textarea
+						id="description"
 						className="w-full border rounded p-2"
-						value={address.region}
-						onChange={(e) => setAddress({ ...address, region: e.target.value })}
+						rows={4}
+						value={description}
+						onChange={(e) => setDescription(e.target.value)}
 						required
 					/>
 				</div>
-				<div>
-					<label className="block font-medium mb-1" htmlFor="zone">
-						Zone
-					</label>
-					<input
-						id="zone"
-						className="w-full border rounded p-2"
-						value={address.zone}
-						onChange={(e) => setAddress({ ...address, zone: e.target.value })}
-					/>
-				</div>
-				<div>
-					<label className="block font-medium mb-1" htmlFor="woreda">
-						Woreda
-					</label>
-					<input
-						id="woreda"
-						className="w-full border rounded p-2"
-						value={address.woreda}
-						onChange={(e) => setAddress({ ...address, woreda: e.target.value })}
-					/>
-				</div>
-				<div>
-					<label className="block font-medium mb-1" htmlFor="city">
-						City
-					</label>
-					<input
-						id="city"
-						className="w-full border rounded p-2"
-						value={address.city}
-						onChange={(e) => setAddress({ ...address, city: e.target.value })}
-					/>
-				</div>
-				<div>
-					<label className="block font-medium mb-1" htmlFor="subCity">
-						Sub City
-					</label>
-					<input
-						id="subCity"
-						className="w-full border rounded p-2"
-						value={address.subCity}
-						onChange={(e) =>
-							setAddress({ ...address, subCity: e.target.value })
-						}
-					/>
-				</div>
-				<div>
-					<label className="block font-medium mb-1" htmlFor="kebele">
-						Kebele
-					</label>
-					<input
-						id="kebele"
-						className="w-full border rounded p-2"
-						value={address.kebele}
-						onChange={(e) => setAddress({ ...address, kebele: e.target.value })}
-					/>
-				</div>
-			</fieldset>
 
-			<button
-				type="submit"
-				disabled={createReportMutation.status === "pending"}
-				className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-			>
-				{createReportMutation.status === "pending"
-					? "Submitting..."
-					: "Submit Report"}
-			</button>
-		</form>
+				{/* Address Fields */}
+				<fieldset className="border border-gray-300 rounded p-4 space-y-4 grid sm:grid-cols-3 gap-4">
+					<legend className="font-semibold">Address</legend>
+
+					<div>
+						<label
+							className="block mb-1 text-start italic font-extrabold"
+							htmlFor="region"
+						>
+							Region *
+						</label>
+						{/* <input
+							id="region"
+							className="w-full border rounded p-2"
+							value={address.region}
+							onChange={(e) =>
+								setAddress({ ...address, region: e.target.value })
+							}
+							required
+						/> */}
+						<select
+							id="Region"
+							value={address.region}
+							className="w-full border rounded p-2"
+							onChange={(e) =>
+								setAddress({ ...address, region: e.target.value })
+							}
+							required
+						>
+							<option value="" disabled>
+								Select your Region
+							</option>
+							<option value="Sidama">Sidama</option>
+							<option value="Oromia">Oromia</option>
+							<option value="Amhara">Amhara</option>
+							<option value="Tigray">Tigray</option>
+							<option value="Diredawa">Diredawa</option>
+							<option value="Addis Ababa">Addis Ababa</option>
+							<option value="Somalia">Somalia</option>
+						</select>
+					</div>
+					<div>
+						<label
+							className="block mb-1 text-start italic font-extrabold"
+							htmlFor="zone"
+						>
+							Zone
+						</label>
+						<input
+							id="zone"
+							className="w-full border rounded p-2"
+							value={address.zone}
+							onChange={(e) => setAddress({ ...address, zone: e.target.value })}
+						/>
+					</div>
+					<div>
+						<label
+							className="block mb-1 text-start italic font-extrabold"
+							htmlFor="woreda"
+						>
+							Woreda
+						</label>
+						<input
+							id="woreda"
+							className="w-full border rounded p-2"
+							value={address.woreda}
+							onChange={(e) =>
+								setAddress({ ...address, woreda: e.target.value })
+							}
+						/>
+					</div>
+					<div>
+						<label
+							className="block mb-1 text-start italic font-extrabold"
+							htmlFor="city"
+						>
+							City
+						</label>
+						<input
+							id="city"
+							className="w-full border rounded p-2"
+							value={address.city}
+							onChange={(e) => setAddress({ ...address, city: e.target.value })}
+						/>
+					</div>
+					<div>
+						<label
+							className="block mb-1 text-start italic font-extrabold"
+							htmlFor="subCity"
+						>
+							Sub City
+						</label>
+						<input
+							id="subCity"
+							className="w-full border rounded p-2"
+							value={address.subCity}
+							onChange={(e) =>
+								setAddress({ ...address, subCity: e.target.value })
+							}
+						/>
+					</div>
+					<div>
+						<label
+							className="block mb-1 text-start italic font-extrabold"
+							htmlFor="kebele"
+						>
+							Kebele
+						</label>
+						<input
+							id="kebele"
+							className="w-full border rounded p-2"
+							value={address.kebele}
+							onChange={(e) =>
+								setAddress({ ...address, kebele: e.target.value })
+							}
+						/>
+					</div>
+				</fieldset>
+
+				<button
+					type="submit"
+					disabled={createReportMutation.status === "pending"}
+					className="btn mt-5"
+				>
+					{createReportMutation.status === "pending"
+						? "Submitting..."
+						: "Submit Report"}
+				</button>
+			</form>
+		</div>
 	);
 }

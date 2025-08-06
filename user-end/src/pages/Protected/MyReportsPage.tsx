@@ -31,39 +31,26 @@ const MyReportsPage = () => {
 	const reportsToShow = data?.data.data;
 
 	return (
-		<main>
+		<main className="p-6 space-y-6">
 			{/* Top Bar */}
 			<header>
-				<h1>Your Reports</h1>
-				{/* Optional: add search/filter controls here */}
+				<h1 className="text-2xl cursive font-semibold">Your Reports</h1>
 			</header>
-
-			{/* Tab Bar */}
-			{/* <nav>
-				<button
-					onClick={() => setSelectedTab("public")}
-					aria-current={selectedTab === "public" ? "page" : undefined}
-				>
-					Public Reports
-				</button>
-				<button
-					onClick={() => setSelectedTab("user")}
-					aria-current={selectedTab === "user" ? "page" : undefined}
-				>
-					Your Reports
-				</button>
-			</nav> */}
-
-			{/* Reports List */}
 			{isLoading ? (
 				<p>Loading reports...</p>
 			) : Array.isArray(reportsToShow) && reportsToShow.length > 0 ? (
-				<ul>
-					{reportsToShow.map((report) => (
-						<li>
-							<ReportCard report={report} />
-						</li>
-					))}
+				<ul className="flex flex-wrap gap-5 justify-between">
+					{reportsToShow
+						.sort(
+							(a, b) =>
+								new Date(b.submittedAt).getTime() -
+								new Date(a.submittedAt).getTime()
+						)
+						.map((report) => (
+							<li key={report.id}>
+								<ReportCard report={report} />
+							</li>
+						))}
 				</ul>
 			) : (
 				<p>No reports found.</p>
