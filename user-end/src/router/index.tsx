@@ -10,6 +10,7 @@ import MyReportsPage from "@/pages/Protected/MyReportsPage.tsx";
 import CreateReportPage from "@/pages/Protected/CreateReportPage.tsx";
 import ActivityPage from "@/pages/Protected/Activity.tsx";
 import SettingPage from "@/pages/Protected/Setting.tsx";
+import ReportPage from "@/pages/Protected/ReportPage.tsx";
 import LogoutPage from "@/pages/public/LogoutPage.tsx";
 
 const router = createBrowserRouter([
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
 		children: [
 			{ path: "/feed", Component: Feed },
 			{ path: "/reports", Component: MyReportsPage },
+			{ path: "/reports/:reportId", Component: ReportPage },
 			{ path: "/report/new", Component: CreateReportPage },
 			{ path: "/activity", Component: ActivityPage },
 			{ path: "/settings", Component: SettingPage },
