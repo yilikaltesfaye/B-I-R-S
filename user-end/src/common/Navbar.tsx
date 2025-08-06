@@ -1,46 +1,54 @@
 import { Link, useLocation } from "react-router";
+import { FaHome, FaFileAlt, FaPlusCircle, FaBell, FaCog } from "react-icons/fa";
 
 const Navbar = () => {
 	const location = useLocation();
 
 	const navItems = [
-		{ path: "/feed", label: "Feed" },
-		{ path: "/reports", label: "Reports" },
-		{ path: "/report/new", label: "➕" }, // Center FAB
-		{ path: "/activity", label: "Activity" },
-		{ path: "/settings", label: "Settings" },
+		{ path: "/feed", label: "Feed", icon: <FaHome className="text-3xl" /> },
+		{
+			path: "/reports",
+			label: "Reports",
+			icon: <FaFileAlt className="text-3xl" />,
+		},
+		{
+			path: "/report/new",
+			label: "",
+			icon: <FaPlusCircle className="text-4xl text-slate-950" />,
+		},
+		{
+			path: "/activity",
+			label: "Activity",
+			icon: <FaBell className="text-3xl" />,
+		},
+		{
+			path: "/settings",
+			label: "Settings",
+			icon: <FaCog className="text-3xl" />,
+		},
 	];
 
 	return (
-		<nav
-			style={{
-				position: "fixed",
-				bottom: 0,
-				left: 0,
-				right: 0,
-				display: "flex",
-				justifyContent: "space-around",
-				padding: "1rem 0",
-				backgroundColor: "#f8f8f8",
-				borderTop: "1px solid #ddd",
-				zIndex: 10,
-			}}
-		>
-			{navItems.map((item, index) => (
-				<Link
-					key={item.path || index}
-					to={item.path}
-					style={{
-						textDecoration: "none",
-						color: location.pathname === item.path ? "blue" : "black",
-						fontWeight: item.label === "➕" ? "bold" : "normal",
-						fontSize: item.label === "➕" ? "2rem" : "1rem",
-						marginTop: item.label === "➕" ? "-1rem" : "0",
-					}}
-				>
-					{item.label}
-				</Link>
-			))}
+		<nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center bg-slate-50 border-t z-50 h-16 px-2 sm:px-4 shadow-sm">
+			{navItems.map((item, index) => {
+				const isActive = location.pathname === item.path;
+				const isPlus = item.path === "/report/new";
+
+				return (
+					<Link
+						key={index}
+						to={item.path}
+						className={`flex flex-col items-center justify-center text-md ${
+							isActive ? "text-950-400 font-semibold" : "text-slate-600"
+						} ${isPlus ? "relative -top-3" : ""}`}
+					>
+						{item.icon}
+						{item.label && (
+							<span className="hidden sm:block mt-1">{item.label}</span>
+						)}
+					</Link>
+				);
+			})}
 		</nav>
 	);
 };
