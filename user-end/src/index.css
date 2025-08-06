@@ -4,13 +4,27 @@ body {
 	@apply bg-slate-50 text-slate-950 text-base;
 	font-family: "Courier New", Courier, monospace;
 }
+
 h1,
 h2,
 h3 {
-	@apply text-5xl font-extrabold;
+	@apply font-extrabold;
 	font-family: cursive;
 }
 
 .btn {
-	@apply flex flex-row gap-2 items-center font-extrabold border-2 rounded-2xl py-2 px-5 hover:bg-slate-950 hover:text-slate-50 hover:border-slate-50 transition ease-in-out w-fit;
+	@apply flex flex-row gap-2 items-center font-extrabold border-2 rounded-2xl py-2 px-5 hover:bg-slate-950 hover:text-slate-50 hover:border-slate-950 transition ease-in-out text-center justify-center duration-400;
+}
+
+.cursive {
+	font-family: cursive;
+}
+
+/* Add to your global CSS file */
+.scrollbar-none {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, Opera */
 }

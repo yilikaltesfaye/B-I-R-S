@@ -53,7 +53,7 @@ const RegisterPage = () => {
 				onSubmit={handleSubmit(onSubmit)}
 				className="flex-grow flex flex-col gap-2 lg:gap-6 items-center justify-between w-full"
 			>
-				<div className="flex flex-col lg:gap-2  overflow-scroll h-96 sm:h-full w-full">
+				<div className="flex flex-col lg:gap-2  overflow-scroll h-96 sm:h-full w-full scrollbar-none">
 					<div className="flex flex-col sm:flex-row gap-2 w-full">
 						<div className="flex flex-col gap-2 w-full">
 							<label
