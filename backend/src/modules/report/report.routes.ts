@@ -2,7 +2,6 @@ import { Router } from "express";
 // import { getAllUsers, getUserData } from "../user/user.depricated";
 import * as Report from "./report.controller";
 import {
-	AuthedRequest,
 	requireAdmin,
 	requireAuth,
 	requireAuthority,
@@ -32,13 +31,6 @@ router.get("/:id", requireAuth, Report.getReportByIdController); // get report b
 
 router.get("/user/:userId", requireAuth, Report.getReportByUserIdController); // get reports by userid route
 
-router.put("/:id/status", requireAuth, (req, res, next) => {
-	const typedReq = req as AuthedRequest;
-
-	if (typedReq.userRole === "AUTHORITY" || typedReq.userRole === "ADMIN") {
-		return Report.updateReportStatusController(typedReq, res, next);
-	}
-	res.status(403).json({ title: "fail", message: "Access denied" });
-}); // Update status to fixed
+router.put("/:id/status", requireAuth, Report.updateReportStatusController); // Update status to fixed
 
 export default router;

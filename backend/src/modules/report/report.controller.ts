@@ -71,14 +71,29 @@ export const getAuthorityReportsController = async (
 			where: {
 				authorityOfficeId,
 			},
-			include: {
-				category: true,
+			select: {
+				id: true,
+				description: true,
+				status: true,
+				submittedAt: true,
+				address: true,
+				updatedAt: true,
+				category: {
+					select: {
+						name: true,
+					},
+				},
+				authorityOffice: {
+					select: {
+						officeName: true,
+						address: true,
+						iconUrl: true,
+					},
+				},
 				user: {
 					select: {
-						id: true,
 						name: true,
-						email: true,
-						phone: true,
+						id: true,
 					},
 				},
 			},
