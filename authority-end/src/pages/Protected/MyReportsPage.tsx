@@ -1,7 +1,7 @@
 // import { useState } from "react";
 import { Navigate } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
-import { useReportsByUserId } from "@/api";
+import { useAuthorityReports } from "@/api/reports/queries";
 import { ReportCard } from "@/components/ReportCard";
 // import { useFilteredReports, useReportsByUserId } from "@/api";
 // import type { GetFilteredReportsPayload } from "@/types";
