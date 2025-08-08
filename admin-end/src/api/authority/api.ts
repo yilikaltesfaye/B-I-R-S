@@ -1,4 +1,4 @@
-import type { CreateAuthorityOfficePauload } from "~/types/payload/authority.payload";
+import type { CreateAuthorityOfficePauload } from "../../types/payload/authority.payload";
 import type { AuthorityOffice } from "../../types";
 import { apiClient } from "../client";
 
