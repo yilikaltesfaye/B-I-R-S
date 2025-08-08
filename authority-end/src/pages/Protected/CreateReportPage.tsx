@@ -1,5 +1,5 @@
-import { useCreateReport } from "@/api";
-import { useAllCategories } from "@/api/category/queries";
+// Authority users don't create reports - they manage existing ones
+// This page should redirect to dashboard
 import { useState } from "react";
 import { useNavigate } from "react-router";
 
