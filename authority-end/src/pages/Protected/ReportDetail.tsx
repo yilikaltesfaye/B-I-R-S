@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router";
 import { useReportById } from "../../api/reports/queries";
 import { useCommentsByReportId } from "../../api/comments/queries";
 import { useUpdateReportStatus } from "../../api/reports/mutations";
-import { Status } from "../../types";
+import { Status } from "@/types";
 import { useState } from "react";
 import { FiArrowLeft, FiMapPin, FiClock, FiUser, FiBuilding, FiPhone, FiMail } from "react-icons/fi";
 import { CommentItem } from "../../components/CommentItem";
