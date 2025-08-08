@@ -26,9 +26,9 @@ const ProtectectRoutes = () => {
 			});
 			hasToasted.current = true;
 		}
-	}, [user, location]);
+	}, [authority, location]);
 
-	if (!user) {
+	if (!authority) {
 		return <Navigate to="/login" replace state={{ from: location }} />;
 	}
 
