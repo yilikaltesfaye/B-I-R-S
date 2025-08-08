@@ -1,6 +1,6 @@
-import { useReportById } from "@/api";
-import { useCreateComment, useDeleteComment } from "@/api/comments/mutations";
+import { useReportById } from "@/api/reports/queries";
 import { useCommentsByReportId } from "@/api/comments/queries";
+// Authority users have read-only access to comments
 import { useState } from "react";
 import { useParams } from "react-router";
 import type { Comment } from "@/types";
