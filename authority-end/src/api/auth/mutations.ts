@@ -1,87 +1,52 @@
 import { useMutation } from "@tanstack/react-query";
-import type {
-	RequestOtpPayload,
-	VerifyOtpPayload,
-	RegisterPayload,
-	LoginPayload,
-	ResetPasswordPayload,
-} from "../../types";
-import { queryClient, setAccessToken } from "../client";
 import { authApi } from "./api";
-import { QUERY_KEYS } from "../constants";
+import { queryClient, setAccessToken } from "../client";
+import type { LoginPayload, RegisterPayload, RequestOtpPayload, VerifyOtpPayload } from "@/types";
 
-export const useRequestOtp = () =>
-	useMutation({
-		mutationFn: (payload: RequestOtpPayload) =>
-			authApi.requestOtp(payload).then((res) => res.data),
-		onSuccess: (data) => {
-			console.log(data.title, data.message);
-		},
-		onError: (error: any) => {
-			console.error(error.response?.data?.title, error.response?.data?.message);
-		},
-	});
-
-export const useVerifyOtp = () =>
-	useMutation({
-		mutationFn: (payload: VerifyOtpPayload) =>
-			authApi.verifyOtp(payload).then((res) => res.data),
-		onSuccess: (data) => {
-			console.log(data.title, data.message);
-		},
-		onError: (error: any) => {
-			console.error(error.response?.data?.title, error.response?.data?.message);
-		},
-	});
-
-export const useRegister = () =>
-	useMutation({
-		mutationFn: (payload: RegisterPayload) =>
-			authApi.register(payload).then((res) => res.data),
-		onSuccess: (data) => {
-			console.log(data.title, data.message);
-			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.FULL });
-		},
-		onError: (error: any) => {
-			console.error(error.response?.data?.title, error.response?.data?.message);
-		},
-	});
-
-export const useLogin = () =>
-	useMutation({
-		mutationFn: (payload: LoginPayload) =>
-			authApi.login(payload).then((res) => res.data),
+export const useLogin = () => {
+	return useMutation({
+		mutationFn: (payload: LoginPayload) => authApi.login(payload),
 		onSuccess: (data) => {
 			setAccessToken(data.accessToken);
-			console.log(data.title, data.message);
-			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.FULL });
-		},
-		onError: (error: any) => {
-			console.error(error.response?.data?.title, error.response?.data?.message);
+			queryClient.invalidateQueries({ queryKey: ["user"] });
 		},
 	});
+};
 
-export const useLogout = () =>
-	useMutation({
-		mutationFn: () => authApi.logout().then((res) => res.data),
+export const useRegister = () => {
+	return useMutation({
+		mutationFn: (payload: RegisterPayload) => authApi.register(payload),
 		onSuccess: (data) => {
+			setAccessToken(data.accessToken);
+			queryClient.invalidateQueries({ queryKey: ["user"] });
+		},
+	});
+};
+
+export const useLogout = () => {
+	return useMutation({
+		mutationFn: () => authApi.logout(),
+		onSuccess: () => {
 			setAccessToken(null);
-			queryClient.removeQueries({ queryKey: QUERY_KEYS.USER.FULL });
-			console.log(data.title, data.message);
-		},
-		onError: (error: any) => {
-			console.error(error.response?.data?.title, error.response?.data?.message);
+			queryClient.clear();
 		},
 	});
+};
 
-export const useResetPassword = () =>
-	useMutation({
-		mutationFn: (payload: ResetPasswordPayload) =>
-			authApi.resetPassword(payload).then((res) => res.data),
-		onSuccess: (data) => {
-			console.log(data.title, data.message);
-		},
-		onError: (error: any) => {
-			console.error(error.response?.data?.title, error.response?.data?.message);
-		},
+export const useRequestOtp = () => {
+	return useMutation({
+		mutationFn: (payload: RequestOtpPayload) => authApi.requestOtp(payload),
 	});
+};
+
+export const useVerifyOtp = () => {
+	return useMutation({
+		mutationFn: (payload: VerifyOtpPayload) => authApi.verifyOtp(payload),
+	});
+};
+
+export const useMe = (enabled: boolean) => {
+	return useMutation({
+		mutationFn: () => authApi.me(),
+	});
+};
