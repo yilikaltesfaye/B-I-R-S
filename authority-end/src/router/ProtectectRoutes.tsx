@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import Navbar from "@/common/Navbar";
 
 const ProtectectRoutes = () => {
-	const { user, isLoading } = useAuth();
+	const { authority, isLoading } = useAuth();
 	const location = useLocation();
 	const hasToasted = useRef(false);
 
