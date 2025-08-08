@@ -22,6 +22,7 @@ const router = createBrowserRouter([
 			</RouterGate>
 		),
 		children: [
+			{ index: true, element: <Navigate to="/dashboard" replace /> },
 			{ path: "/dashboard", Component: Dashboard },
 			{ path: "/reports", Component: Dashboard }, // Redirect to dashboard for now
 			{ path: "/reports/:id", Component: ReportDetail },
