@@ -35,6 +35,7 @@ const ProtectectRoutes = () => {
 
 	return (
 		<>
+			<Header />
 			<div className="mb-16">
 				<Outlet />
 			</div>
