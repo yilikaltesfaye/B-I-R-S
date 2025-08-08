@@ -1,9 +1,10 @@
-import type { Role, User, UserUpdatePayload } from "@/types";
 import { apiClient } from "../client";
+import type { User } from "@/types";
 
 export const userApi = {
-	me: () => apiClient.get<{ id: string; role: Role }>("/users/me"),
-	getUserById: (id: string) => apiClient.get<{ data: User }>(`/users/${id}`),
-	updateUser: (id: string, payload: UserUpdatePayload) =>
-		apiClient.put<User>(`/users/${id}`, payload),
+	me: () =>
+		apiClient.get<{ title: string; message: string; data: User }>("/users/me"),
+
+	getUserFull: () =>
+		apiClient.get<{ title: string; message: string; data: User }>("/users/full"),
 };
