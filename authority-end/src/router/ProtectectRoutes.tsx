@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
+import Header from "@/common/Header";
 import Navbar from "@/common/Navbar";
 
 const ProtectectRoutes = () => {
