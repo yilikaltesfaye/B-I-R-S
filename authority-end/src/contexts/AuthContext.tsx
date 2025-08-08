@@ -14,7 +14,7 @@ import {
 import { authApi } from "../api/auth/api";
 
 type AuthContextType = {
-	user: User | null;
+	authority: User | null;
 	role?: Role;
 	isLoading: boolean;
 	login: (payload: LoginPayload) => Promise<void>;
@@ -22,6 +22,8 @@ type AuthContextType = {
 	logout: () => Promise<void>;
 	requestOtp: ReturnType<typeof useRequestOtp>;
 	verifyOtp: ReturnType<typeof useVerifyOtp>;
+	isAuthority: boolean;
+	authorityOffice?: User["authorityStaff"];
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,7 +35,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-	const [user, setUser] = useState<User | null>(null);
+	const [authority, setAuthority] = useState<User | null>(null);
 	const [accessToken, internalSetAccessToken] = useState<string | null>(null);
 
 	// === Controlled queries ===
@@ -58,8 +60,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 				await userQuery.refetch();
 			} catch (error: any) {
 				if (error.response?.status === 401) {
-					// User is not logged in, no refresh token — silently handle
-					setUser(null);
+					// Authority is not logged in, no refresh token — silently handle
+					setAuthority(null);
 					internalSetAccessToken(null);
 					setAccessToken(null);
 				} else {
@@ -75,58 +77,75 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	// === Track login state ===
 	useEffect(() => {
 		if (meQuery.isSuccess && userQuery.data) {
-			setUser(userQuery.data);
+			// Only allow AUTHORITY role users
+			if (userQuery.data.role === Role.AUTHORITY) {
+				setAuthority(userQuery.data);
+			} else {
+				setAuthority(null);
+				console.warn("Non-authority user attempted to access authority panel");
+			}
 		}
 		if (meQuery.isError) {
-			setUser(null);
+			setAuthority(null);
 		}
 	}, [meQuery.status, userQuery.data]);
 
 	// === Token refresh logic ===
 	useEffect(() => {
 		let interval: ReturnType<typeof setInterval> | undefined;
-		if (user) {
+		if (authority) {
 			interval = setInterval(async () => {
 				try {
 					const res = await authApi.refreshAccessToken();
 					internalSetAccessToken(res.data.accessToken);
 					setAccessToken(res.data.accessToken);
 				} catch {
-					setUser(null);
+					setAuthority(null);
 					internalSetAccessToken(null);
 					setAccessToken(null);
 				}
 			}, 15 * 60 * 1000);
 		}
 		return () => clearInterval(interval);
-	}, [user]);
+	}, [authority]);
 
 	// === Auth API wrappers ===
 	const login = async (payload: LoginPayload) => {
 		const res = await loginM.mutateAsync(payload);
-		internalSetAccessToken(res.accessToken);
-		setAccessToken(res.accessToken);
-		setUser(res.userData);
+		// Verify the user is an authority before setting them
+		if (res.userData.role === Role.AUTHORITY) {
+			internalSetAccessToken(res.accessToken);
+			setAccessToken(res.accessToken);
+			setAuthority(res.userData);
+		} else {
+			throw new Error("Only authority users can access this application");
+		}
 	};
 
 	const register = async (payload: any) => {
 		const res = await registerM.mutateAsync(payload);
-		internalSetAccessToken(res.accessToken);
-		setAccessToken(res.accessToken);
-		setUser(res.userData);
+		if (res.userData.role === Role.AUTHORITY) {
+			internalSetAccessToken(res.accessToken);
+			setAccessToken(res.accessToken);
+			setAuthority(res.userData);
+		} else {
+			throw new Error("Only authority users can register in this application");
+		}
 	};
 
 	const logout = async () => {
 		await logoutM.mutateAsync();
-		setUser(null);
+		setAuthority(null);
 		internalSetAccessToken(null);
 		setAccessToken(null);
 	};
 
+	const isAuthority = authority?.role === Role.AUTHORITY;
+
 	return (
 		<AuthContext.Provider
 			value={{
-				user,
+				authority,
 				role: meQuery.data?.role,
 				isLoading: meQuery.isLoading || isInitializing,
 				login,
@@ -134,6 +153,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 				logout,
 				requestOtp: requestOtpM,
 				verifyOtp: verifyOtpM,
+				isAuthority,
+				authorityOffice: authority?.authorityStaff,
 			}}
 		>
 			{children}
