@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { reportsApi } from "./api";
-import type { GetFilteredReportsPayload } from "@/types";
 
 export const useReportsByCategoryId = (categoryId: number) => {
 	return useQuery({
@@ -8,15 +7,6 @@ export const useReportsByCategoryId = (categoryId: number) => {
 		queryFn: () =>
 			reportsApi.getReportsByCategoryId(categoryId).then((res) => res.data),
 		enabled: !!categoryId,
-	});
-};
-
-export const useFilteredReports = (payload: GetFilteredReportsPayload) => {
-	return useQuery({
-		queryKey: ["reports", "filtered", payload],
-		queryFn: () =>
-			reportsApi.getFilteredReports(payload).then((res) => res.data),
-		enabled: !!payload,
 	});
 };
 
@@ -28,10 +18,9 @@ export const useReportById = (id: string) => {
 	});
 };
 
-export const useReportsByUserId = (userId: string) => {
+export const useAuthorityReports = () => {
 	return useQuery({
-		queryKey: ["reports", userId],
-		queryFn: () => reportsApi.getReportsbyUserId(userId),
-		enabled: !!userId, // only fetch if userId is truthy
+		queryKey: ["authority", "reports"],
+		queryFn: () => reportsApi.getAuthorityReportsByUserId().then((res) => res.data),
 	});
 };
