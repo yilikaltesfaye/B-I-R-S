@@ -11,11 +11,11 @@ export const reportsApi = {
       title: string;
       message: string;
       data: Report[];
-    }>("/authority"),
+    }>("/reports/authority"),
   getReportById: (id: string) =>
     apiClient.get<{ title: string; message: string; data: Report }>(
       `/reports/${id}`
     ),
   updateReportStatus: (id: string, status: Status) =>
-    apiClient.put(`${id}/status`, status),
+    apiClient.put(`/reports/${id}/status`, { status }),
 };
