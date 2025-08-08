@@ -9,11 +9,6 @@ const Navbar = () => {
 	const navItems = [
 		{ path: "/dashboard", label: "Dashboard", icon: <FaHome className="text-3xl" /> },
 		{
-			path: "/reports",
-			label: "Reports",
-			icon: <FaFileAlt className="text-3xl" />,
-		},
-		{
 			path: "/analytics",
 			label: "Analytics",
 			icon: <FaChartBar className="text-3xl" />,
