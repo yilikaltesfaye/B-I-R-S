@@ -1,9 +1,3 @@
-enum Role {
-	"USER",
-	"ADMIN",
-	"AUTHORITY",
-}
-
 export interface Address {
 	region: string;
 	zone?: string;
