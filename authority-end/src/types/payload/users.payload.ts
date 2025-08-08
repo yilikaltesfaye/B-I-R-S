@@ -8,7 +8,7 @@ export interface Address {
 	[key: string]: any;
 }
 
-import type { Role } from "../index";
+import type { Role } from "../enums";
 
 export type UserUpdatePayload = Partial<{
 	name: string;
