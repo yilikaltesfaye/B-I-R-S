@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAuthorityReports } from "../../api/reports/queries";
 import { useUpdateReportStatus } from "../../api/reports/mutations";
-import { Status, Report } from "../../types";
+import { Status, Report } from "@/types";
 import { FiMapPin, FiClock, FiUser, FiCheckCircle, FiXCircle, FiRotateCcw } from "react-icons/fi";
 
 const StatusBadge = ({ status }: { status: Status }) => {
