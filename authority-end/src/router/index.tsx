@@ -3,6 +3,7 @@ import ProtectectRoutes from "./ProtectectRoutes.tsx";
 import RouterGate from "./RouterGate.tsx";
 import HomePage from "@/pages/public/HomePage.tsx";
 import Dashboard from "@/pages/Protected/Dashboard";
+import Analytics from "@/pages/Protected/Analytics";
 import LoginPage from "@/pages/public/LoginPage";
 import RegisterPage from "@/pages/public/RegisterPage";
 import ErrorPage from "@/common/ErrorPage.tsx";
