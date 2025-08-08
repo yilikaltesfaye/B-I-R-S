@@ -52,21 +52,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	useEffect(() => {
 		const initializeAuth = async () => {
 			try {
-				const res = await authApi.refreshAccessToken();
-				internalSetAccessToken(res.data.accessToken);
-				setAccessToken(res.data.accessToken);
-				await meQuery.refetch();
-				await userQuery.refetch();
+				// For now, just set initialization to false without making API calls
+				// This allows the app to load without backend connection
+				setIsInitializing(false);
 			} catch (error: any) {
-				if (error.response?.status === 401) {
-					// Authority is not logged in, no refresh token — silently handle
-					setAuthority(null);
-					internalSetAccessToken(null);
-					setAccessToken(null);
-				} else {
-					console.error("Unexpected error during token refresh", error);
-				}
-			} finally {
+				console.error("Unexpected error during initialization", error);
 				setIsInitializing(false);
 			}
 		};
