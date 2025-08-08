@@ -8,6 +8,8 @@ export interface Address {
 	[key: string]: any;
 }
 
+import type { Role } from "../index";
+
 export type UserUpdatePayload = Partial<{
 	name: string;
 	email: string;
