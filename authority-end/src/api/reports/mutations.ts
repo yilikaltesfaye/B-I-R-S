@@ -1,14 +1,15 @@
-import type { CreateReportPayload } from "@/types";
+import type { Status } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "../client";
 import { reportsApi } from "./api";
 
-export const useCreateReport = () => {
+export const useUpdateReportStatus = () => {
 	return useMutation({
-		mutationFn: (payload: CreateReportPayload) =>
-			reportsApi.createReport(payload).then((res) => res.data),
+		mutationFn: ({ id, status }: { id: string; status: Status }) =>
+			reportsApi.updateReportStatus(id, status),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["reports"] });
+			queryClient.invalidateQueries({ queryKey: ["authority"] });
 		},
 	});
 };
