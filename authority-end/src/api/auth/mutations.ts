@@ -45,8 +45,4 @@ export const useVerifyOtp = () => {
 	});
 };
 
-export const useMe = (enabled: boolean) => {
-	return useMutation({
-		mutationFn: () => authApi.me(),
-	});
-};
+// useMe is now in users/queries.ts as a query, not mutation
