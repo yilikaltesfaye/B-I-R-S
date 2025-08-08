@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import ProtectectRoutes from "./ProtectectRoutes.tsx";
 import RouterGate from "./RouterGate.tsx";
 import HomePage from "@/pages/public/HomePage.tsx";
