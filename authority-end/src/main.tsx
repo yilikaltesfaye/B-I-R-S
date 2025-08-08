@@ -8,7 +8,6 @@ import { AuthProvider } from "./contexts/AuthContext.tsx";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@/api";
 import { Toaster } from "react-hot-toast";
-import type { Report } from "./types/index";
 
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
