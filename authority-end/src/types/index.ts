@@ -1,21 +1,11 @@
+export * from "./enums";
 export * from "./payload/auth.payload";
 export * from "./payload/users.payload";
 export * from "./payload/reports.payload";
 export * from "./payload/comments.payload";
 
 import type { Address } from "./payload/users.payload";
-
-export enum Role {
-	"USER",
-	"ADMIN",
-	"AUTHORITY",
-}
-export enum Status {
-	"PENDING",
-	"IN_PROGRESS",
-	"FIXED",
-	"REJECTED",
-}
+import type { Role, Status } from "./enums";
 
 export interface User {
 	id: string;
