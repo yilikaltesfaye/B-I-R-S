@@ -12,7 +12,7 @@ const ProtectectRoutes = () => {
 	useEffect(() => {
 		if (
 			isLoading &&
-			!user &&
+			!authority &&
 			location.state?.from !== "redirected" &&
 			!hasToasted.current
 		) {
