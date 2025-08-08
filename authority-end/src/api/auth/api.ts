@@ -1,53 +1,35 @@
-import type {
-	RequestOtpPayload,
-	VerifyOtpPayload,
-	RegisterPayload,
-	User,
-	LoginPayload,
-	ResetPasswordPayload,
-} from "@/types";
 import { apiClient } from "../client";
-enum allowedTypes {
-	"FORGETPASSWORD",
-	"NEWACCOUNT",
-}
+import type { LoginPayload, RegisterPayload, RequestOtpPayload, VerifyOtpPayload, User } from "@/types";
 
 export const authApi = {
-	requestOtp: (payload: RequestOtpPayload) =>
-		apiClient.post<{
-			title: string;
-			message: string;
-			verificationId: string;
-			expiresIn: string;
-			type: allowedTypes;
-		}>("/auth/requestotp", payload),
-	verifyOtp: (payload: VerifyOtpPayload) =>
-		apiClient.post<{
-			title: string;
-			message: string;
-			guestToken: string;
-			expiryMin: number;
-		}>("/auth/verifyotp", payload),
-	register: (payload: RegisterPayload) =>
-		apiClient.post<{
-			title: string;
-			message: string;
-			accessToken: string;
-			userData: User;
-		}>("/auth/register", payload),
 	login: (payload: LoginPayload) =>
 		apiClient.post<{
 			title: string;
 			message: string;
 			accessToken: string;
 			userData: User;
-		}>("/auth/login", payload),
+		}>("/auth/login", payload).then(res => res.data),
+
+	register: (payload: RegisterPayload) =>
+		apiClient.post<{
+			title: string;
+			message: string;
+			accessToken: string;
+			userData: User;
+		}>("/auth/register", payload).then(res => res.data),
+
 	logout: () =>
-		apiClient.post<{ title: string; message: string }>("/auth/logout"),
+		apiClient.post<{ title: string; message: string }>("/auth/logout").then(res => res.data),
+
+	me: () =>
+		apiClient.get<{ title: string; message: string; data: User }>("/auth/me").then(res => res.data),
+
 	refreshAccessToken: () =>
-		apiClient.post<{ accessToken: string; title: string; message: string }>(
-			"/auth/refresh-access-token"
-		),
-	resetPassword: (payload: ResetPasswordPayload) =>
-		apiClient.post("/resetpassword", payload),
+		apiClient.get<{ title: string; message: string; accessToken: string }>("/auth/refresh").then(res => res.data),
+
+	requestOtp: (payload: RequestOtpPayload) =>
+		apiClient.post<{ title: string; message: string }>("/auth/request-otp", payload).then(res => res.data),
+
+	verifyOtp: (payload: VerifyOtpPayload) =>
+		apiClient.post<{ title: string; message: string }>("/auth/verify-otp", payload).then(res => res.data),
 };
