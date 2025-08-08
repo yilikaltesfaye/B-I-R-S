@@ -4,13 +4,12 @@ import type { LoginPayload, Role, User } from "../types";
 import {
 	useRequestOtp,
 	useVerifyOtp,
-	useMe,
-	useUserFull,
 	useLogin,
 	useRegister,
 	useLogout,
 	setAccessToken,
-} from "../api";
+} from "../api/auth/mutations";
+import { useMe, useUserFull } from "../api/users/queries";
 import { authApi } from "../api/auth/api";
 
 type AuthContextType = {
