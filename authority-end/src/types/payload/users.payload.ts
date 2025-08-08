@@ -1,4 +1,8 @@
-import type { Role } from "@/types";
+enum Role {
+	"USER",
+	"ADMIN",
+	"AUTHORITY",
+}
 
 export interface Address {
 	region: string;
