@@ -1,4 +1,4 @@
-import type { Report, Status } from "../../types";
+import type { Report, Status } from "@/types";
 import { apiClient } from "../client";
 
 export const reportsApi = {
