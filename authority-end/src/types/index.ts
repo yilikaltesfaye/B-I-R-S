@@ -1,12 +1,29 @@
-export * from "./enums";
-export * from "./payload/auth.payload";
-export * from "./payload/users.payload";
-export * from "./payload/reports.payload";
-export * from "./payload/comments.payload";
+// Base enums
+export enum Role {
+	USER = "USER",
+	ADMIN = "ADMIN",
+	AUTHORITY = "AUTHORITY",
+}
 
-import type { Address } from "./payload/users.payload";
-import type { Role, Status } from "./enums";
+export enum Status {
+	PENDING = "PENDING",
+	IN_PROGRESS = "IN_PROGRESS",
+	FIXED = "FIXED",
+	REJECTED = "REJECTED",
+}
 
+// Address interface
+export interface Address {
+	region: string;
+	zone?: string;
+	woreda?: string;
+	city?: string;
+	subCity?: string;
+	kebele?: string;
+	[key: string]: any;
+}
+
+// Main interfaces
 export interface User {
 	id: string;
 	phone: string;
@@ -103,4 +120,66 @@ export interface AuthorityOffice {
 		description: string;
 		IconUrl?: string;
 	}[];
+}
+
+// Payload types
+export interface CreateReportPayload {
+	address: Address;
+	description: string;
+	categoryId: number;
+}
+
+export const STATUS_TABS = ["PENDING", "APPROVED", "REJECTED"] as const;
+export type StatusTab = (typeof STATUS_TABS)[number];
+
+export interface GetFilteredReportsPayload {
+	region: string;
+	status: StatusTab;
+	zone?: string;
+	woreda?: string;
+	city?: string;
+	subCity?: string;
+	kebele?: string;
+	skip?: number;
+	take?: number;
+}
+
+export type UserUpdatePayload = Partial<{
+	name: string;
+	email: string;
+	phone: string;
+	address: Address;
+	password: string;
+	role: Role;
+	isActive: boolean;
+}>;
+
+// Auth payload types
+export interface LoginPayload {
+	phone: string;
+	password: string;
+}
+
+export interface RegisterPayload {
+	name: string;
+	phone: string;
+	email?: string;
+	password: string;
+	address: Address;
+}
+
+export interface RequestOtpPayload {
+	phone: string;
+}
+
+export interface VerifyOtpPayload {
+	phone: string;
+	otp: string;
+}
+
+// Comment payload types
+export interface CreateCommentPayload {
+	reportId: string;
+	content: string;
+	replyToId?: string;
 }
