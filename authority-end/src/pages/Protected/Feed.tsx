@@ -4,8 +4,7 @@
 import { Link, Navigate } from "react-router";
 import { ReportCard } from "@/components/ReportCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { useFilteredReports, useReportsByUserId } from "@/api";
-import type { GetFilteredReportsPayload } from "@/types";
+import { useAuthorityReports } from "@/api/reports/queries";
 
 export default function DashboardPage() {
 	const { user } = useAuth();
