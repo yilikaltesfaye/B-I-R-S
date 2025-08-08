@@ -10,13 +10,13 @@ import { queryClient } from "@/api";
 import { Toaster } from "react-hot-toast";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-        <Toaster position="bottom-right" reverseOrder={true} />
-      </AuthProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  </StrictMode>
+	<StrictMode>
+		<QueryClientProvider client={queryClient}>
+			<AuthProvider>
+				<RouterProvider router={router} />
+				<Toaster position="bottom-right" reverseOrder={true} />
+			</AuthProvider>
+			<ReactQueryDevtools initialIsOpen={false} />
+		</QueryClientProvider>
+	</StrictMode>
 );
