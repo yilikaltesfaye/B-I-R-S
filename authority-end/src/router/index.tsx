@@ -27,7 +27,7 @@ const router = createBrowserRouter([
 			{ path: "/dashboard", Component: Dashboard },
 			{ path: "/reports", Component: Dashboard }, // Redirect to dashboard for now
 			{ path: "/reports/:id", Component: ReportDetail },
-			{ path: "/analytics", Component: Dashboard }, // Placeholder for analytics
+			{ path: "/analytics", Component: Analytics },
 			{ path: "/settings", Component: SettingPage },
 		],
 	},
