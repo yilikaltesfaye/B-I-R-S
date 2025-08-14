@@ -7,15 +7,15 @@ export * from "./payload/category.payload";
 import type { Address } from "./payload/users.payload";
 
 export enum Role {
-	"USER",
-	"ADMIN",
-	"AUTHORITY",
+	USER = "USER",
+	ADMIN = "ADMIN",
+	AUTHORITY = "AUTHORITY",
 }
 export enum Status {
-	"PENDING",
-	"IN_PROGRESS",
-	"FIXED",
-	"REJECTED",
+	PENDING = "PENDING",
+	IN_PROGRESS = "IN_PROGRESS",
+	FIXED = "FIXED",
+	REJECTED = "REJECTED",
 }
 
 export interface User {

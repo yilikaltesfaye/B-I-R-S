@@ -13,7 +13,7 @@ export interface RegisterPayload {
 	phone: string;
 	password: string;
 	fullname: string;
-	appContext: "admin" | "user" | "authority";
+	appContext: "admin";
 	email?: string;
 	guestToken?: string;
 	address: {
@@ -29,7 +29,7 @@ export interface RegisterPayload {
 export interface LoginPayload {
 	phone: string;
 	password: string;
-	appContext: "admin" | "user" | "authority";
+	appContext: "admin";
 }
 export interface ResetPasswordPayload {
 	guestToken: string;
