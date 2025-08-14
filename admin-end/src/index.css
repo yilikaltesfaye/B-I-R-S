@@ -1,68 +1,71 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+@import "tailwindcss";
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+	@apply bg-slate-50 text-slate-950 text-base;
+	font-family: "Courier New", Courier, monospace;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1,
+h2,
+h3 {
+	@apply font-extrabold;
+	font-family: cursive;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.btn {
+	@apply flex flex-row gap-2 items-center font-extrabold border-2 rounded-2xl py-2 px-5 hover:bg-slate-950 hover:text-slate-50 hover:border-slate-950 transition ease-in-out text-center justify-center duration-400;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.cursive {
+	font-family: cursive;
+}
+
+/* Add to your global CSS file */
+.scrollbar-none {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, Opera */
+}
+
+/* Admin specific styles */
+.sidebar {
+	@apply fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out;
+}
+
+.sidebar-hidden {
+	@apply -translate-x-full;
+}
+
+.main-content {
+	@apply transition-all duration-300 ease-in-out;
+}
+
+.main-content-expanded {
+	@apply ml-64;
+}
+
+.admin-card {
+	@apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow;
+}
+
+.status-badge {
+	@apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.action-button {
+	@apply px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200;
+}
+
+.admin-table {
+	@apply min-w-full divide-y divide-gray-200;
+}
+
+.admin-table th {
+	@apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.admin-table td {
+	@apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
 }
