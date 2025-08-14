@@ -7,10 +7,22 @@ import { apiClient } from "../client";
 
 export const categoryApi = {
 	createCategory: (payload: CreateCategoryPayload) =>
-		apiClient.post<Category>("/categories", payload),
-	getAllCategory: () => apiClient.get<Category[]>("/categories"),
-	getCategoryById: (id: number) => apiClient.get<Category>(`/categories/${id}`),
+		apiClient.post<{ title: string; message: string; data: Category }>(
+			"/categories",
+			payload
+		),
+	getAllCategory: () =>
+		apiClient.get<{ title: string; message: string; data: Category[] }>(
+			"/categories"
+		),
+	getCategoryById: (id: number) =>
+		apiClient.get<{ title: string; message: string; data: Category }>(
+			`/categories/${id}`
+		),
 	updatedCategory: (id: number, payload: UpdateCategoryPayload) =>
-		apiClient.put<Category>(`/categories/${id}`, payload),
+		apiClient.put<{ title: string; message: string; data: Category }>(
+			`/categories/${id}`,
+			payload
+		),
 	deleteCategory: (id: number) => apiClient.delete(`/categories/${id}`),
 };

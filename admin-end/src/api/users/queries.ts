@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { userApi } from "./api";
-import type { Role, User } from "@/types";
+import type { Role, User } from "../../types";
 import { QUERY_KEYS } from "../constants";
 
 export const useMe = (enabled: boolean = true) =>
@@ -22,4 +22,20 @@ export const useUserFull = (enabled: boolean = true) =>
 		},
 		staleTime: 5 * 60 * 1000,
 		enabled,
+	});
+
+// Admin-specific queries
+export const useAllUsers = () =>
+	useQuery<User[]>({
+		queryKey: QUERY_KEYS.USER.ALL,
+		queryFn: () => userApi.getAllUser().then((res) => res.data.data),
+		staleTime: 5 * 60 * 1000,
+	});
+
+export const useUserById = (id: string) =>
+	useQuery<User>({
+		queryKey: QUERY_KEYS.USER.BY_ID(id),
+		queryFn: () => userApi.getUserById(id).then((res) => res.data.data),
+		staleTime: 5 * 60 * 1000,
+		enabled: !!id,
 	});

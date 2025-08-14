@@ -1,24 +1,24 @@
 import { userApi } from "./api";
-import { useMutation } from "@tanstack/react-query";
-import type { Role, User, UserUpdatePayload } from "@/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Role, User, UserUpdatePayload } from "../../types";
 import { QUERY_KEYS } from "../constants";
-import { queryClient } from "../client";
+import toast from "react-hot-toast";
 
-export const useUpdateUser = () =>
-	useMutation({
+export const useUpdateUser = () => {
+	const queryClient = useQueryClient();
+	
+	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: UserUpdatePayload }) =>
 			userApi.updateUser(id, data),
 
-		// Optimistic Update Logic
 		onMutate: async (variables) => {
-			// Cancel any outgoing refetches to avoid overwrite
 			await queryClient.cancelQueries({ queryKey: QUERY_KEYS.USER.FULL });
 			await queryClient.cancelQueries({ queryKey: QUERY_KEYS.USER.CURRENT });
+			await queryClient.cancelQueries({ queryKey: QUERY_KEYS.USER.ALL });
 			await queryClient.cancelQueries({
 				queryKey: QUERY_KEYS.USER.BY_ID(variables.id),
 			});
 
-			// Snapshot previous values
 			const previousUserFull = queryClient.getQueryData<User>(
 				QUERY_KEYS.USER.FULL
 			);
@@ -26,6 +26,9 @@ export const useUpdateUser = () =>
 				id: string;
 				role: Role;
 			}>(QUERY_KEYS.USER.CURRENT);
+			const previousAllUsers = queryClient.getQueryData<User[]>(
+				QUERY_KEYS.USER.ALL
+			);
 
 			// Optimistically update cache
 			if (previousUserFull && variables.id === previousUserFull.id) {
@@ -38,31 +41,37 @@ export const useUpdateUser = () =>
 			if (previousUserCurrent && variables.id === previousUserCurrent.id) {
 				queryClient.setQueryData(QUERY_KEYS.USER.CURRENT, {
 					...previousUserCurrent,
-					...(variables.data.role && { role: variables.data.role }), // Only update role if changed
+					...(variables.data.role && { role: variables.data.role }),
 				});
 			}
 
-			return { previousUserFull, previousUserCurrent };
+			if (previousAllUsers) {
+				queryClient.setQueryData(QUERY_KEYS.USER.ALL, 
+					previousAllUsers.map(user => 
+						user.id === variables.id ? { ...user, ...variables.data } : user
+					)
+				);
+			}
+
+			return { previousUserFull, previousUserCurrent, previousAllUsers };
 		},
 
-		// On Success
 		onSuccess: (updatedUser, variables) => {
-			// Update caches with actual server response
-			queryClient.setQueryData(QUERY_KEYS.USER.FULL, updatedUser);
+			queryClient.setQueryData(QUERY_KEYS.USER.FULL, updatedUser.data.data);
 			queryClient.setQueryData(QUERY_KEYS.USER.CURRENT, {
-				id: updatedUser.data.id,
-				role: updatedUser.data.role,
+				id: updatedUser.data.data.id,
+				role: updatedUser.data.data.role,
 			});
 
-			// If admin updated another user's profile
-			if (variables.id !== updatedUser.data.id) {
-				queryClient.invalidateQueries({
-					queryKey: QUERY_KEYS.USER.BY_ID(variables.id),
-				});
-			}
+			// Invalidate and refetch queries
+			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.ALL });
+			queryClient.invalidateQueries({
+				queryKey: QUERY_KEYS.USER.BY_ID(variables.id),
+			});
+			
+			toast.success("User updated successfully");
 		},
 
-		// Error Handling
 		onError: (_error, _variables, context) => {
 			// Rollback optimistic updates
 			if (context?.previousUserFull) {
@@ -77,11 +86,37 @@ export const useUpdateUser = () =>
 					context.previousUserCurrent
 				);
 			}
+			if (context?.previousAllUsers) {
+				queryClient.setQueryData(
+					QUERY_KEYS.USER.ALL,
+					context.previousAllUsers
+				);
+			}
+			
+			toast.error("Failed to update user");
 		},
 
-		// Always refetch after error or success
-		onSettled: (_data, _error, _variables) => {
+		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.FULL });
 			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.CURRENT });
+			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.ALL });
 		},
 	});
+};
+
+export const useDeleteUser = () => {
+	const queryClient = useQueryClient();
+	
+	return useMutation({
+		mutationFn: (id: string) => userApi.deleteUser(id),
+		
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.ALL });
+			toast.success("User deleted successfully");
+		},
+		
+		onError: () => {
+			toast.error("Failed to delete user");
+		},
+	});
+};
