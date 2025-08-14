@@ -17,13 +17,13 @@ const HomePage = () => {
 	}
 
 	return (
-		<main className="relative flex flex-col gap-40 items-center justify-center h-screen text-slate-50 ">
-			{/* <main className="relative flex flex-col gap-40 items-center justify-center h-screen"> */}
-			<img
+		// <main className="relative flex flex-col gap-40 items-center justify-center h-screen text-slate-50 ">
+		<main className="relative flex flex-col gap-40 items-center justify-center h-screen">
+			{/* <img
 				src={"/images/splashScreen.png"}
 				alt="Splash"
 				className=" absolute bg-black inset-0 -z-40 w-full h-full object-cover 2xl:object-cover"
-			/>
+			/> */}
 			<header className="flex flex-col items-center">
 				<h1 className="text-6xl">BIRS</h1>
 				<p className="p-10 text-center text-xl italic font-extrabold">

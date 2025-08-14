@@ -5,7 +5,7 @@ import { Link, Navigate } from "react-router";
 import { ReportCard } from "@/components/ReportCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFilteredReports, useReportsByUserId } from "@/api";
-import type { GetFilteredReportsPayload } from "@/types";
+import type { GetFilteredReportsPayload, Report } from "@/types";
 
 export default function DashboardPage() {
 	const { user } = useAuth();
@@ -23,7 +23,9 @@ export default function DashboardPage() {
 	const { data, isLoading: loadingPublic } = useFilteredReports(payload);
 	const userReports = forUser?.data.data;
 
-	const reports = data?.data.filter((report) => report.user.id !== user.id);
+	const reports = data?.data.filter(
+		(report: Report) => report.user.id !== user.id
+	);
 
 	return (
 		<div className="p-6 space-y-6">
