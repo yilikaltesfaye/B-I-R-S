@@ -148,11 +148,11 @@ export const loginService = async (data: LoginInterface) => {
 			},
 		},
 	});
-	// if (!user) throw new HttpError("Invalid Phone or Password", 401);
-	if (!user) throw new HttpError("በዚስልክ ቁጥሩ ተጠቃሚ የለም", 401);
+	if (!user) throw new HttpError("Invalid Phone or Password", 401);
+	// if (!user) throw new HttpError("በዚስልክ ቁጥሩ ተጠቃሚ የለም", 401);
 	const valid = await comparePasswords(data.password, user.password);
 	if (!valid) throw new HttpError("Invalid Phone or Password", 401);
-
+	console.log(user.role);
 	if (data.appContext === "admin" && user.role !== "ADMIN") {
 		throw new HttpError("Access denied: Not an admin.", 403);
 	}
