@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import {
-	FiShield,
-	FiBell,
-	FiUser,
-	FiSettings,
-	FiLogOut,
-	FiMenu,
-	FiX,
-} from "react-icons/fi";
+import { FiUser, FiSettings, FiLogOut, FiMenu, FiX } from "react-icons/fi";
 import { Link } from "react-router";
 
 const Header = () => {
@@ -27,8 +19,8 @@ const Header = () => {
 				<div className="flex justify-between items-center h-16">
 					{/* Logo and Title */}
 					<div className="flex items-center space-x-3">
-						<div className="bg-blue-600 p-2 rounded-lg">
-							<FiShield className="h-6 w-6 text-white" />
+						<div className="bg-blue-600 p-2 rounded-lg text-white font-extrabold px-4">
+							A
 						</div>
 						<div>
 							<h1 className="text-lg font-semibold text-gray-900">
@@ -60,12 +52,6 @@ const Header = () => {
 
 					{/* Right Side */}
 					<div className="flex items-center space-x-4">
-						{/* Notifications */}
-						<button className="p-2 text-gray-400 hover:text-gray-600 transition-colors relative">
-							<FiBell className="h-5 w-5" />
-							<span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-						</button>
-
 						{/* Profile Dropdown */}
 						<div className="relative">
 							<button
