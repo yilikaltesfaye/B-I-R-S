@@ -5,192 +5,190 @@ import { HttpError } from "../../middlewares/HttpError";
 import { hashPassword } from "../../utils/hash";
 
 export const getAllUsersController = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
-	try {
-		const page = parseInt(req.query.page as string) || 1;
-		const limit = parseInt(req.query.limit as string) || 10;
-		const skip = (page - 1) * limit;
-		const total = await prisma.user.count();
-		const users = await prisma.user.findMany({
-			skip,
-			take: limit,
-			select: {
-				id: true,
-				name: true,
-				role: true,
-				email: true,
-				phone: true,
-				isActive: true,
-				address: true,
-				updatedAt: true,
-				createdAt: true,
-			},
-		});
-		res.json({
-			status: "success",
-			message: "protected route only for users",
-			data: users,
-			total,
-			page,
-			limit,
-			totalPages: Math.ceil(total / limit),
-		});
-	} catch (error: any) {
-		next(error);
-	}
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const total = await prisma.user.count();
+    const users = await prisma.user.findMany({
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        role: true,
+        email: true,
+        phone: true,
+        isActive: true,
+        address: true,
+        updatedAt: true,
+        createdAt: true,
+      },
+    });
+    res.json({
+      status: "success",
+      message: "protected route only for users",
+      data: users,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (error: any) {
+    next(error);
+  }
 };
 export const getUserByIdController = async (
-	req: AuthedRequest,
-	res: Response,
-	next: NextFunction
+  req: AuthedRequest,
+  res: Response,
+  next: NextFunction,
 ) => {
-	try {
-		const { userId, userRole } = req;
-		const targetUserId = req.params.id;
+  try {
+    const { userId, userRole } = req;
+    const targetUserId = String(req.params.id);
+    if (!userId) {
+      throw new HttpError("No user ID was provided in session", 401);
+    }
 
-		if (!userId) {
-			throw new HttpError("No user ID was provided in session", 401);
-		}
+    const isSameUser = userId === targetUserId;
 
-		const isSameUser = userId === targetUserId;
+    if (userRole !== "ADMIN" && !isSameUser) {
+      throw new HttpError("Access denied", 403);
+    }
 
-		if (userRole !== "ADMIN" && !isSameUser) {
-			throw new HttpError("Access denied", 403);
-		}
+    const user = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      include: {
+        authorityStaff: {
+          select: {
+            position: true,
+            authorityOffice: {
+              select: {
+                officeName: true,
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
-		const user = await prisma.user.findUnique({
-			where: { id: targetUserId },
-			include: {
-				authorityStaff: {
-					select: {
-						position: true,
-						authorityOffice: {
-							select: {
-								officeName: true,
-								id: true,
-							},
-						},
-					},
-				},
-			},
-		});
+    if (!user) {
+      throw new HttpError("User not found", 404);
+    }
+    const { password, refreshToken, refreshTokenExp, ...userData } = user;
 
-		if (!user) {
-			throw new HttpError("User not found", 404);
-		}
-		const { password, refreshToken, refreshTokenExp, ...userData } = user;
-
-		res.json({
-			status: "success",
-			message: "User data retrieved",
-			data: userData,
-		});
-	} catch (error) {
-		next(error);
-	}
+    res.json({
+      status: "success",
+      message: "User data retrieved",
+      data: userData,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const updateUserController = async (
-	req: AuthedRequest,
-	res: Response,
-	next: NextFunction
+  req: AuthedRequest,
+  res: Response,
+  next: NextFunction,
 ) => {
-	try {
-		const { userId, userRole } = req;
-		const targetUserId = req.params.id;
-		const updateData = req.body;
+  try {
+    const { userId, userRole } = req;
+    const targetUserId = String(req.params.id);
+    const updateData = req.body;
 
-		if (!userId) {
-			throw new HttpError("No user ID was provided in session", 401);
-		}
+    if (!userId) {
+      throw new HttpError("No user ID was provided in session", 401);
+    }
 
-		const isSameUser = userId === targetUserId;
+    const isSameUser = userId === targetUserId;
 
-		if (userRole !== "ADMIN" && !isSameUser) {
-			throw new HttpError("Access denied", 403);
-		}
+    if (userRole !== "ADMIN" && !isSameUser) {
+      throw new HttpError("Access denied", 403);
+    }
 
-		// Block id updates just in case
-		if ("id" in updateData) {
-			delete updateData.id;
-		}
+    // Block id updates just in case
+    if ("id" in updateData) {
+      delete updateData.id;
+    }
 
-		// If role is included in update, only admin can update role
-		if ("role" in updateData && userRole !== "ADMIN") {
-			delete updateData.role;
-		}
+    // If role is included in update, only admin can update role
+    if ("role" in updateData && userRole !== "ADMIN") {
+      delete updateData.role;
+    }
 
-		// Handle password update securely if provided
-		if ("password" in updateData) {
-			updateData.password = await hashPassword(updateData.password);
-		}
+    // Handle password update securely if provided
+    if ("password" in updateData) {
+      updateData.password = await hashPassword(updateData.password);
+    }
 
-		// Optional: validate updateData fields here or rely on Zod/Joi schema elsewhere
+    // Optional: validate updateData fields here or rely on Zod/Joi schema elsewhere
 
-		const updatedUser = await prisma.user.update({
-			where: { id: targetUserId },
-			data: updateData,
-			select: {
-				id: true,
-				name: true,
-				email: true,
-				phone: true,
-				role: true,
-				address: true,
-				isActive: true,
-				createdAt: true,
-				updatedAt: true,
-			},
-		});
+    const updatedUser = await prisma.user.update({
+      where: { id: targetUserId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        address: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-		if (!updatedUser) {
-			throw new HttpError("User not found", 404);
-		}
+    if (!updatedUser) {
+      throw new HttpError("User not found", 404);
+    }
 
-		res.json({
-			status: "success",
-			message: "User updated successfully",
-			data: updatedUser,
-		});
-	} catch (error) {
-		next(error);
-	}
+    res.json({
+      status: "success",
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const deleteUserController = async (
-	req: AuthedRequest,
-	res: Response,
-	next: NextFunction
+  req: AuthedRequest,
+  res: Response,
+  next: NextFunction,
 ) => {
-	try {
-		const targetUserId = req.params.id;
+  try {
+    const targetUserId = String(req.params.id);
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
 
-		// Check if user exists
-		const user = await prisma.user.findUnique({
-			where: { id: targetUserId },
-		});
+    if (!user) {
+      throw new HttpError("User not found", 404);
+    }
 
-		if (!user) {
-			throw new HttpError("User not found", 404);
-		}
+    // Optional: prevent admin from deleting themselves
+    if (req.userId === targetUserId) {
+      throw new HttpError("You cannot delete your own account", 400);
+    }
 
-		// Optional: prevent admin from deleting themselves
-		if (req.userId === targetUserId) {
-			throw new HttpError("You cannot delete your own account", 400);
-		}
+    await prisma.user.delete({
+      where: { id: targetUserId },
+    });
 
-		await prisma.user.delete({
-			where: { id: targetUserId },
-		});
-
-		res.json({
-			status: "success",
-			message: "User deleted successfully",
-		});
-	} catch (error) {
-		next(error);
-	}
+    res.json({
+      status: "success",
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
