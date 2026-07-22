@@ -8,16 +8,16 @@ router.post("/", requireAuth, requireAdmin, Category.createCategoryController);
 router.get("/", requireAuth, Category.getAllCategoriesController);
 router.get("/:id", requireAuth, Category.getCategoryByIdController);
 router.put(
-	"/:id",
-	requireAuth,
-	requireAdmin,
-	Category.updateCategoryController
+  "/:id",
+  requireAuth,
+  requireAdmin,
+  Category.updateCategoryController,
 );
 router.delete(
-	"/:id",
-	requireAuth,
-	requireAdmin,
-	Category.deleteCategoryController
+  "/:id",
+  requireAuth,
+  requireAdmin,
+  Category.deleteCategoryController,
 );
 
 export default router;

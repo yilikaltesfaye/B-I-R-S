@@ -2,9 +2,9 @@ import { Router } from "express";
 // import { getAllUsers, getUserData } from "../user/user.depricated";
 import * as Report from "./report.controller";
 import {
-	requireAdmin,
-	requireAuth,
-	requireAuthority,
+  requireAdmin,
+  requireAuth,
+  requireAuthority,
 } from "../../middlewares/auth.middleware";
 
 const router = Router();
@@ -14,15 +14,15 @@ router.post("/", requireAuth, Report.createReportController); // create report r
 router.get("/", requireAuth, requireAdmin, Report.getAllReportsController); // get all reports
 
 router.get(
-	"/authority",
-	requireAuth,
-	requireAuthority,
-	Report.getAuthorityReportsController
+  "/authority",
+  requireAuth,
+  requireAuthority,
+  Report.getAuthorityReportsController,
 ); // get all reports
 router.get(
-	"/category/:categoryId",
-	requireAuth,
-	Report.getReportsByCategoryController
+  "/category/:categoryId",
+  requireAuth,
+  Report.getReportsByCategoryController,
 ); // get all reports
 
 router.get("/filter", requireAuth, Report.getReportsByAddressController); // too complicated for me pause on this for now

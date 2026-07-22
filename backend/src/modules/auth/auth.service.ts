@@ -1,18 +1,18 @@
 import prisma from "../../clients/prismaClient";
 import { redis } from "../../clients/redisClient";
 import {
-	LoginInterface,
-	PayloadInterface,
-	RegisterInterface,
-	ResetPasswordInterface,
-	VerifyOtpInterface,
+  LoginInterface,
+  PayloadInterface,
+  RegisterInterface,
+  ResetPasswordInterface,
+  VerifyOtpInterface,
 } from "./auth.types";
 import { comparePasswords, hashPassword } from "../../utils/hash";
 import {
-	generateAccessToken,
-	generateGuestToken,
-	generateRefreshToken,
-	verifyRefreshToken,
+  generateAccessToken,
+  generateGuestToken,
+  generateRefreshToken,
+  verifyRefreshToken,
 } from "../../utils/token";
 import { getUserById } from "../user/user.service";
 import { sendOtp, verifyOtp } from "../../utils/otp";
@@ -22,201 +22,201 @@ import { checkRedis } from "../../utils/checkRedisStore";
 // request otp for new accounts
 
 export const registerOtpService = async (phone: string) => {
-	const exisiting = await prisma.user.findUnique({ where: { phone } });
-	if (exisiting) {
-		throw new HttpError("Phone number is already in use", 409);
-	}
+  const exisiting = await prisma.user.findUnique({ where: { phone } });
+  if (exisiting) {
+    throw new HttpError("Phone number is already in use", 409);
+  }
 
-	const { verificationId, expiresIn, code } = await sendOtp(phone);
+  const { verificationId, expiresIn, code } = await sendOtp(phone);
 
-	return { verificationId, expiresIn, code };
+  return { verificationId, expiresIn, code };
 };
 
 // request otp for new accounts
 
 export const forgetPasswordOtpService = async (phone: string) => {
-	const user = await prisma.user.findUnique({ where: { phone } });
-	if (!user)
-		throw new HttpError("Your User does not exist in the database", 404);
+  const user = await prisma.user.findUnique({ where: { phone } });
+  if (!user)
+    throw new HttpError("Your User does not exist in the database", 404);
 
-	const { verificationId, expiresIn, code } = await sendOtp(phone);
+  const { verificationId, expiresIn, code } = await sendOtp(phone);
 
-	return { verificationId, expiresIn, code };
+  return { verificationId, expiresIn, code };
 };
 
 // verify otp and sends back token for reset
 
 export const verifyOtpService = async (data: VerifyOtpInterface) => {
-	await verifyOtp(data.phone, data.code, data.verificationId);
+  await verifyOtp(data.phone, data.code, data.verificationId);
 
-	const { guestToken, expirySeconds } = generateGuestToken();
+  const { guestToken, expirySeconds } = generateGuestToken();
 
-	const phone = data.phone;
-	// edge case
-	const exists = await redis.get(`verified:${phone}`);
-	if (exists) {
-		await redis.del(`verified:${phone}`);
-	}
+  const phone = data.phone;
+  // edge case
+  const exists = await redis.get(`verified:${phone}`);
+  if (exists) {
+    await redis.del(`verified:${phone}`);
+  }
 
-	await redis.set(`verified:${phone}`, guestToken, "EX", expirySeconds);
+  await redis.set(`verified:${phone}`, guestToken, "EX", expirySeconds);
 
-	return { guestToken, expirySeconds };
+  return { guestToken, expirySeconds };
 };
 
 // registration service and sends back access and refresh tokens
 
 export const registerService = async (data: RegisterInterface) => {
-	const existing = await prisma.user.findUnique({
-		where: { phone: data.phone },
-	});
-	// await checkRedis(data.phone, data.guestToken);
-	if (existing) {
-		throw new HttpError("Phone number is already in use", 409);
-	}
+  const existing = await prisma.user.findUnique({
+    where: { phone: data.phone },
+  });
+  // await checkRedis(data.phone, data.guestToken);
+  if (existing) {
+    throw new HttpError("Phone number is already in use", 409);
+  }
 
-	const hashed = await hashPassword(data.password);
-	const user = await prisma.user.create({
-		data: {
-			name: data.name,
-			email: data.email,
-			phone: data.phone,
-			password: hashed,
-			address: data.address,
-		},
-		include: {
-			authorityStaff: {
-				select: {
-					position: true,
-					authorityOffice: {
-						select: {
-							officeName: true,
-							id: true,
-						},
-					},
-				},
-			},
-		},
-	});
-	if (data.appContext === "admin" && user.role !== "ADMIN") {
-		throw new HttpError(
-			"Access denied: Registration was complete but as a user you can't access the admin platform. Use the Citizen platform.",
-			403
-		);
-	}
-	if (data.appContext === "authority" && user.role !== "AUTHORITY") {
-		throw new HttpError(
-			"Access denied: Registration was complete but as a user you can't access the authority platform. Use the Citizen platform.",
-			403
-		);
-	}
+  const hashed = await hashPassword(data.password);
+  const user = await prisma.user.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      password: hashed,
+      address: data.address,
+    },
+    include: {
+      authorityStaff: {
+        select: {
+          position: true,
+          authorityOffice: {
+            select: {
+              officeName: true,
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  if (data.appContext === "admin" && user.role !== "ADMIN") {
+    throw new HttpError(
+      "Access denied: Registration was complete but as a user you can't access the admin platform. Use the Citizen platform.",
+      403,
+    );
+  }
+  if (data.appContext === "authority" && user.role !== "AUTHORITY") {
+    throw new HttpError(
+      "Access denied: Registration was complete but as a user you can't access the authority platform. Use the Citizen platform.",
+      403,
+    );
+  }
 
-	const payload: PayloadInterface = {
-		userId: user.id,
-		userRole: user.role,
-	};
-	const { password, refreshToken, refreshTokenExp, ...userData } = user;
-	const newRefreshToken = generateRefreshToken(payload);
-	const accessToken = generateAccessToken(payload);
+  const payload: PayloadInterface = {
+    userId: user.id,
+    userRole: user.role,
+  };
+  const { password, refreshToken, refreshTokenExp, ...userData } = user;
+  const newRefreshToken = generateRefreshToken(payload);
+  const accessToken = generateAccessToken(payload);
 
-	const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+  const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
-	await prisma.user.update({
-		where: { id: user.id },
-		data: {
-			refreshToken: newRefreshToken,
-			refreshTokenExp: refreshTokenExpiry,
-		},
-	});
-	return { accessToken, refreshToken: newRefreshToken, userData };
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      refreshToken: newRefreshToken,
+      refreshTokenExp: refreshTokenExpiry,
+    },
+  });
+  return { accessToken, refreshToken: newRefreshToken, userData };
 };
 
 // Login service and sends back access and refresh tokens
 export const loginService = async (data: LoginInterface) => {
-	const user = await prisma.user.findUnique({
-		where: { phone: data.phone },
-		include: {
-			authorityStaff: {
-				select: {
-					position: true,
-					authorityOffice: {
-						select: {
-							officeName: true,
-							id: true,
-						},
-					},
-				},
-			},
-		},
-	});
-	if (!user) throw new HttpError("Invalid Phone or Password", 401);
-	// if (!user) throw new HttpError("በዚስልክ ቁጥሩ ተጠቃሚ የለም", 401);
-	const valid = await comparePasswords(data.password, user.password);
-	if (!valid) throw new HttpError("Invalid Phone or Password", 401);
-	console.log(user.role);
-	if (data.appContext === "admin" && user.role !== "ADMIN") {
-		throw new HttpError("Access denied: Not an admin.", 403);
-	}
-	if (data.appContext === "authority" && user.role !== "AUTHORITY") {
-		throw new HttpError("Access denied: Not an authority", 403);
-	}
+  const user = await prisma.user.findUnique({
+    where: { phone: data.phone },
+    include: {
+      authorityStaff: {
+        select: {
+          position: true,
+          authorityOffice: {
+            select: {
+              officeName: true,
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!user) throw new HttpError("Invalid Phone or Password", 401);
+  // if (!user) throw new HttpError("በዚስልክ ቁጥሩ ተጠቃሚ የለም", 401);
+  const valid = await comparePasswords(data.password, user.password);
+  if (!valid) throw new HttpError("Invalid Phone or Password", 401);
+  console.log(user.role);
+  if (data.appContext === "admin" && user.role !== "ADMIN") {
+    throw new HttpError("Access denied: Not an admin.", 403);
+  }
+  if (data.appContext === "authority" && user.role !== "AUTHORITY") {
+    throw new HttpError("Access denied: Not an authority", 403);
+  }
 
-	const payload: PayloadInterface = {
-		userId: user.id,
-		userRole: user.role,
-	};
+  const payload: PayloadInterface = {
+    userId: user.id,
+    userRole: user.role,
+  };
 
-	const { password, refreshToken, refreshTokenExp, ...userData } = user;
-	const newRefreshToken = generateRefreshToken(payload);
-	const accessToken = generateAccessToken(payload);
-	const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+  const { password, refreshToken, refreshTokenExp, ...userData } = user;
+  const newRefreshToken = generateRefreshToken(payload);
+  const accessToken = generateAccessToken(payload);
+  const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
-	await prisma.user.update({
-		where: { id: user.id },
-		data: {
-			refreshToken: newRefreshToken,
-			refreshTokenExp: refreshTokenExpiry,
-		},
-	});
-	return { accessToken, refreshToken: newRefreshToken, userData };
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      refreshToken: newRefreshToken,
+      refreshTokenExp: refreshTokenExpiry,
+    },
+  });
+  return { accessToken, refreshToken: newRefreshToken, userData };
 };
 
 // Reset Password Service
 
 export const resetPasswordService = async (data: ResetPasswordInterface) => {
-	await checkRedis(data.phone, data.guestToken);
+  await checkRedis(data.phone, data.guestToken);
 
-	const hashed = await hashPassword(data.newPassword);
-	await prisma.user.update({
-		where: {
-			phone: data.phone,
-		},
-		data: {
-			password: hashed,
-		},
-	});
+  const hashed = await hashPassword(data.newPassword);
+  await prisma.user.update({
+    where: {
+      phone: data.phone,
+    },
+    data: {
+      password: hashed,
+    },
+  });
 };
 
 // Regenerate Access Token Service
 
 export const regenerateAccessTokenService = async (refreshToken: string) => {
-	if (!refreshToken) {
-		throw new HttpError("Refresh token is required", 400);
-	}
-	let payload;
-	try {
-		payload = verifyRefreshToken(refreshToken);
-	} catch (error) {
-		throw new HttpError("invalid or expired token", 401);
-	}
-	const user = await getUserById(payload.userId);
-	if (!user || user.refreshToken !== refreshToken) {
-		throw new HttpError("Refresh token invalid or revoked", 401);
-	}
+  if (!refreshToken) {
+    throw new HttpError("Refresh token is required", 400);
+  }
+  let payload;
+  try {
+    payload = verifyRefreshToken(refreshToken);
+  } catch (error) {
+    throw new HttpError("invalid or expired token", 401);
+  }
+  const user = await getUserById(payload.userId);
+  if (!user || user.refreshToken !== refreshToken) {
+    throw new HttpError("Refresh token invalid or revoked", 401);
+  }
 
-	const newAccessToken = generateAccessToken({
-		userId: payload.userId,
-		userRole: payload.userRole,
-	});
+  const newAccessToken = generateAccessToken({
+    userId: payload.userId,
+    userRole: payload.userRole,
+  });
 
-	return { accessToken: newAccessToken };
+  return { accessToken: newAccessToken };
 };
