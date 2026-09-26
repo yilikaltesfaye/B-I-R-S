@@ -11,14 +11,13 @@ export interface LoginInterface {
 }
 export interface Address {
 	region: string;
-	zone?: string;
-	woreda?: string;
-	city?: string;
-	subCity?: string;
-	kebele?: string;
+	zone?: string | undefined;
+	woreda?: string | undefined;
+	city?: string | undefined;
+	subCity?: string | undefined;
+	kebele?: string | undefined;
 	[key: string]: any;
 }
-
 export interface RegisterInterface {
 	name: string;
 	phone: string;
@@ -26,7 +25,7 @@ export interface RegisterInterface {
 	address: Address;
 	appContext: "user" | "authority" | "admin";
 	// guestToken: string;
-	email?: string;
+	email?: string | undefined;
 }
 
 export interface regenerateRefreshTokenInterface {
